@@ -47,3 +47,24 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# History files
+.Rhistory
+.Rapp.history
+
+# Session data
+.RData
+.Ruserdata
+
+# Quarto / RMarkdown intermediate files
+.quarto/
+_site/
+.ipynb_checkpoints/
+
+# Package-specific files (if you use renv)
+renv/
+.Rproj.user/
+
+# OS generated files
+.DS_Store
+Thumbs.db
