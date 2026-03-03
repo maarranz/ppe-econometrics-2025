@@ -1,8 +1,25 @@
-# _quarto.yml
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "PPE Econometrics 2025"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: Handouts/index.qmd
+        text: Handouts
+      - href: Labs/index.qmd
+        text: Labs
+      - href: Exams/index.qmd
+        text: Exams
+      - href: Data/index.qmd
+        text: Data
+
 format:
   html:
-    code-fold: true
-    code-summary: "Show the code"
-    embed-resources: true
+    theme: cosmo
+    toc: true
+    number-sections: true
     title-block-banner: true
-    date-format: long
