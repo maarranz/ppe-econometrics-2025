@@ -1,0 +1,8 @@
+# _quarto.yml
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the code"
+    embed-resources: true
+    title-block-banner: true
+    date-format: long
