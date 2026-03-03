@@ -1,2 +1,2 @@
 # ppe-econometrics-2025
-Course: INtroduction to Econometrics, Phi;osophy, Politics, and Economics, Spring 2025
+Course: Introduction to Econometrics, Philosophy, Politics, and Economics, Spring 2025
