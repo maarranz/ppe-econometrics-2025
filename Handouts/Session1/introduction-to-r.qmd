@@ -1,0 +1,234 @@
+---
+title: "Introduction to R"
+subtitle: "Philosophy, Politics, and Economics"
+author: "Miguel A. Arranz"
+date: today
+date-format: long
+format: 
+    html:
+        code-fold: true
+        code-summary: "Show the code"
+---
+
+# Introduction
+
+The objectives of this session are straightforward:
+
+1. To read a data file in CSV format
+2. To obtain some basic statistics
+3. To create various types of graphs, such as histograms, boxplots, density plots, and violin plots
+4. To subset a dataset
+5. To visually compare different aspects of your dataset
+
+To start, it's important to create a file to keep a record of all the commands you'll execute in R. This way, you can easily replicate your results later on.
+
+To create a file in RStudio:
+
+1. Go to the File menu and select "New File," then "R Script"
+2. Save your file (File → Save As) in the same folder as your data file
+3. Set the working directory (Session → Set Working Directory → File Location)
+
+As you progress through the course, you'll learn how to use RMarkdown to unlock the full potential of R, but for now, let's keep things simple and focus on the statistical concepts first.
+
+For a more spacious and uncluttered screen, click the "Show in New Window" icon located below the file name. This will give you two windows: one with your script file and another with the three remaining panels of RStudio.
+
+Important tips:
+- To run commands: Write them in the file, select the desired lines, and click the "Run" icon
+- To add comments: Start the line with the "#" symbol
+- Save your file frequently to prevent loss of work
+
+# Reading Data
+
+R is a powerful programming language primarily used for data science. Unlike Python, which has broader applications, R specializes in statistical analysis and data manipulation.
+
+R can import data from many different file formats, which is a significant advantage over other statistical programs. To import different file formats, you'll need to use specialized packages. One such package is "foreign," which comes pre-installed with R.
+
+Let's read our dataset:
+
+```{r}
+library(here)
+df <- read.csv(here("Data", "gapminder_full.csv"))
+```
+
+The command `read.csv()` reads CSV files into R. We store the data in a data frame called "df". For help with any command, use `help(command_name)` or `?command_name` in the console.
+
+To explore the loaded data:
+- Use `names(df)` to see column names
+- Use `str(df)` to examine the data structure
+
+# Installing Packages
+
+To enhance R's capabilities, we'll need additional packages. Install packages from the console using:
+
+```r
+install.packages("modelsummary")
+install.packages("vioplot")
+```
+
+After installation, load the packages into your session:
+
+```{r}
+#| warning: false
+library(modelsummary)
+library(vioplot)
+```
+
+Note: It's best to install packages from the console rather than the script file, as it might require repository selection.
+
+# Getting the Basic Statistics
+
+Let's start with basic statistical analysis. To analyze the variable "life_exp":
+
+```{r}
+#| output: true
+mean(df$life_exp)
+median(df$life_exp)
+quantile(df$life_exp)
+var(df$life_exp)
+sd(df$life_exp)  # Fixed: Removed nested var() function
+```
+
+To store results for later use, assign them to variables:
+
+```{r}
+xbar <- mean(df$life_exp)
+```
+
+## Exercise
+
+Can you explain why `s` and `sigma` are equal in the following code?
+
+```{r}
+#| output: true
+s2 <- var(df$life_exp)
+s <- sqrt(s2)
+sigma <- sd(df$life_exp)
+print(s)
+print(sigma)
+```
+
+The values are equal because the standard deviation (`sd`) is the square root of the variance. We can calculate it either way:
+- Calculate variance and take its square root
+- Use the `sd()` function directly
+
+## Objects with Multiple Elements
+
+Some statistical functions return multiple values:
+
+```{r}
+#| output: true
+S <- summary(df$life_exp)
+Q <- quantile(df$life_exp)
+print(names(S))
+print(names(Q))
+print(S)
+print(Q)
+```
+
+To access specific values, use either names or positions:
+
+```{r}
+#| output: true
+m1 <- S["Median"]
+m2 <- S[3]
+print(m1)
+print(m2)
+
+m1a <- Q["50%"]
+m2a <- Q[3]
+print(m1a)
+print(m2a)
+```
+
+# Summary of the Dataframe
+
+For a complete overview of the data, use either base R's `summary()` or the more sophisticated `datasummary_skim()`:
+
+```{r}
+#| output: true
+summary(df)
+```
+
+```{r}
+#| output: true
+datasummary_skim(df)
+```
+
+# Graphics
+
+Let's create various visualizations of our data.
+
+## Histogram
+
+Basic histogram:
+
+```{r}
+#| output: true
+hist(df$life_exp, main="Life Expectancy")  # Fixed spelling of "Expectancy"
+```
+
+## Density Plots
+
+```{r}
+#| output: true
+plot(density(df$life_exp), main="Life Expectancy")  # Fixed spelling
+```
+
+## Boxplot
+
+```{r}
+#| output: true
+boxplot(df$gdp_cap, main="GDP per Capita")
+```
+
+## Boxplots with Factors
+
+Compare life expectancy across continents:
+
+```{r}
+#| output: true
+boxplot(df$life_exp ~ df$continent, main="Life Expectancy")  # Fixed spelling
+```
+
+## Violin Plots
+
+```{r}
+#| output: true
+vioplot(df$life_exp, main="Life Expectancy")  # Fixed spelling
+```
+
+```{r}
+#| output: true
+vioplot(df$life_exp ~ df$continent, main="Life Expectancy")  # Fixed spelling
+```
+
+# Subsetting the Dataset
+
+To work with specific parts of your data, you can create subsets:
+
+```{r}
+df_Asia1 <- df[df$continent=="Asia", ]
+df_Asia2 <- subset(df, continent=="Asia")
+```
+
+Compare the results:
+
+```{r}
+datasummary_skim(df_Asia1)
+```
+
+```{r}
+datasummary_skim(df_Asia2)
+```
+
+Check the number of observations:
+
+```{r}
+print(length(df_Asia1$life_exp))
+```
+
+View the distribution across continents:
+
+```{r}
+table(df$continent)
+```

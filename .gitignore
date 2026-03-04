@@ -68,3 +68,6 @@ renv/
 # OS generated files
 .DS_Store
 Thumbs.db
+
+/.quarto/
+**/*.quarto_ipynb

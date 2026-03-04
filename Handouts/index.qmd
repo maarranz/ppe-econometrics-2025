@@ -1,3 +1,6 @@
 ---
 title: "Handouts"
 ---
+
+* [Session 1: EDA](EDA_T.qmd)
+* [Session 1: Introduction to R](introduction-to-r.qmd)

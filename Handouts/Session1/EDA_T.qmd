@@ -1,0 +1,336 @@
+---
+title: "Exploratory Data Analysis"
+subtitle: "Philosophy, Politics, and Economics"
+author: "Miguel A. Arranz"
+date: today
+date-format: long
+format: 
+    html:
+        code-fold: true
+        code-summary: "Show the code"
+---
+
+# Data Preparation
+
+
+
+First, let's load the required packages for our analysis:
+
+```{r}
+#| label: packages
+#| warning: FALSE
+library(foreign)      # For reading various data formats
+library(dplyr)        # For data manipulation
+library(tidyverse)    # For data science tools
+library(ggplot2)      # For creating graphs
+library(rmarkdown)    # For document formatting
+library(kableExtra)   # For table formatting
+library(modelsummary) # For statistical summaries
+library(plotly)       # For interactive plots
+```
+
+Load and examine the dataset:
+
+
+```{r}
+#| label: load-data
+library(here)
+
+# This works regardless of which folder the file is in!
+df <- read.csv(here("Data", "gapminder_full.csv"))
+names(df)
+```
+
+Get a summary of the data:
+
+```{r}
+#| label: datasummary
+#| warning: FALSE
+datasummary_skim(data=df)
+```
+
+# Box Plots
+
+A box plot (also known as a box-and-whisker plot) provides a visual summary of data distribution through five key statistics:
+
+1. Minimum (within 1.5 × IQR)
+2. First quartile (Q1, 25th percentile)
+3. Median (Q2, 50th percentile)
+4. Third quartile (Q3, 75th percentile)
+5. Maximum (within 1.5 × IQR)
+
+The interquartile range (IQR) is calculated as Q3 - Q1. Points beyond 1.5 × IQR from the quartiles are considered potential outliers and plotted individually.
+
+## Life Expectancy Analysis
+
+```{r}
+#| label: ggboxplot
+ggplot(df, aes(y=life_exp)) + 
+  geom_boxplot() + 
+  labs(title="Distribution of Life Expectancy",
+       y="Life Expectancy (years)") -> p 
+ggplotly(p)
+```
+
+```{r}
+summary(df$life_exp)
+```
+
+Calculate the boundaries for outliers:
+
+```{r}
+q1 <- quantile(df$life_exp, 0.25)
+q3 <- quantile(df$life_exp, 0.75)
+iqr <- q3 - q1
+upper <- q3 + 1.5*iqr
+lower <- q1 - 1.5*iqr
+```
+
+|  Frontiers  |    |
+| --- | --- |
+| Lower | `r lower` | 
+| Upper | `r upper` |
+
+## GDP per Capita Analysis
+
+```{r}
+ggplot(df, aes(y=gdp_cap)) + 
+  geom_boxplot() +
+  labs(title="Distribution of GDP per Capita",
+       y="GDP per Capita") -> p 
+ggplotly(p)
+```
+
+```{r}
+summary(df$gdp_cap)
+```
+
+Calculate the boundaries for outliers:
+
+```{r}
+q1 <- quantile(df$gdp_cap, 0.25)
+q3 <- quantile(df$gdp_cap, 0.75)
+iqr <- q3 - q1
+upper <- q3 + 1.5*iqr
+lower <- q1 - 1.5*iqr
+```
+
+|  Frontiers |    |
+| --- | --- |
+| Lower | `r lower` | 
+| Upper | `r upper` |
+
+# Logarithmic Transformation of GDP
+
+Due to the skewed distribution of GDP per capita, we create a logarithmic transformation:
+
+```{r}
+df$log_gdp <- log(df$gdp_cap)
+```
+
+```{r}
+ggplot(df, aes(y=log_gdp)) + 
+  geom_boxplot() +
+  labs(title="Distribution of Log GDP per Capita",
+       y="Log GDP per Capita") -> p 
+ggplotly(p)
+```
+
+```{r}
+summary(df$log_gdp)
+```
+
+Calculate the boundaries for outliers:
+
+```{r}
+q1 <- quantile(df$log_gdp, 0.25)
+q3 <- quantile(df$log_gdp, 0.75)
+iqr <- q3 - q1
+upper <- q3 + 1.5*iqr
+lower <- q1 - 1.5*iqr
+```
+
+|  Frontiers |    |
+| --- | --- |
+| Lower | `r lower` | 
+| Upper | `r upper` |
+
+# Analysis by Continent
+
+Compare life expectancy across continents:
+
+```{r}
+ggplot(df, aes(x=continent, y=log_gdp)) + 
+  geom_boxplot() +
+  labs(title="Log GDP per Capita by Continent",
+       x="Continent",
+       y="Log GDP per Capita") -> p 
+ggplotly(p)
+```
+
+# Distribution Analysis
+
+## Histograms
+
+```{r}
+#| warning: false
+#| message: false
+ggplot(df, aes(x=life_exp)) + 
+  geom_histogram() +
+  labs(title="Distribution of Life Expectancy",
+       x="Life Expectancy (years)",
+       y="Count")
+```
+
+With continental breakdown:
+
+```{r}
+#| warning: false
+#| message: false
+ggplot(df, aes(x=life_exp, fill=continent, color=continent)) + 
+  geom_histogram() +
+  labs(title="Distribution of Life Expectancy by Continent",
+       x="Life Expectancy (years)",
+       y="Count")
+```
+
+## Density Plots
+
+A density plot shows the distribution of continuous data, where:
+- The area under the curve equals 1
+- The height at any point represents the relative likelihood of observations
+- The shape indicates characteristics like skewness and modality
+
+```{r}
+ggplot(df, aes(x=life_exp)) + 
+  geom_density() +
+  labs(title="Density of Life Expectancy",
+       x="Life Expectancy (years)",
+       y="Density")
+```
+
+By continent:
+
+```{r}
+ggplot(df, aes(x=life_exp, color=continent)) + 
+  geom_density() +
+  labs(title="Density of Life Expectancy by Continent",
+       x="Life Expectancy (years)",
+       y="Density")
+```
+
+# Violin Plots
+
+Violin plots combine box plots with kernel density estimates, showing:
+- The median and quartiles (box plot elements)
+- The full distribution shape (density estimate)
+- Potential outliers
+- Comparison across groups
+
+```{r}
+#| warning: false
+#| message: false
+#| output: false
+library(ggpubr)
+
+box <- ggplot(df, aes(x = "Box Plot", y = life_exp)) +
+  geom_boxplot() +
+  labs(y="Life Expectancy (years)")
+
+violin <- ggplot(df, aes(x = "Violin Plot", y = life_exp)) +
+  geom_violin(trim = FALSE, fill = "grey") +
+  labs(y="Life Expectancy (years)")
+
+ggarrange(box, violin, 
+          ncol = 2, 
+          common.legend = TRUE, 
+          legend = "top",
+          widths = c(2, 1), 
+          heights = c(1, 1), 
+          labels = c("A", "B"),
+          font.label = list(size = 12, color = "black"),
+          font.legend = list(size = 12, color = "black"),
+          title = "Life Expectancy Distribution") -> p
+```
+
+```{r}
+p
+```
+
+By continent with embedded box plots:
+
+```{r}
+ggplot(df, aes(x=continent, y=life_exp)) + 
+  geom_violin() +
+  geom_boxplot(width=0.01) +
+  labs(title="Life Expectancy Distribution by Continent",
+       x="Continent",
+       y="Life Expectancy (years)") -> p
+ggplotly(p)
+```
+
+# Normal Distribution Analysis
+
+## QQ Plots
+
+QQ (Quantile-Quantile) plots compare sample distributions to theoretical distributions:
+- Points on the diagonal line suggest normal distribution
+- Deviations indicate non-normality
+- Useful for identifying outliers and distribution shape
+
+GDP per capita:
+
+```{r}
+ggplot(df, aes(sample=gdp_cap)) + 
+  stat_qq() + 
+  stat_qq_line() +
+  labs(title="Normal Q-Q Plot of GDP per Capita")
+```
+
+Log-transformed GDP per capita:
+
+```{r}
+ggplot(df, aes(sample=log_gdp)) + 
+  stat_qq() + 
+  stat_qq_line() +
+  labs(title="Normal Q-Q Plot of Log GDP per Capita")
+```
+
+# Relationship Analysis
+
+## Scatter Plots
+
+Basic relationship between GDP and life expectancy:
+
+```{r}
+ggplot(df, aes(x=log_gdp, y=life_exp)) + 
+  geom_point() +
+  labs(title="Life Expectancy vs Log GDP per Capita",
+       x="Log GDP per Capita",
+       y="Life Expectancy (years)")
+```
+
+With continental breakdown:
+
+```{r}
+ggplot(df, aes(x=log_gdp, y=life_exp, color=continent)) + 
+  geom_point() +
+  labs(title="Life Expectancy vs Log GDP per Capita by Continent",
+       x="Log GDP per Capita",
+       y="Life Expectancy (years)") -> p
+ggplotly(p)
+```
+
+Including population size:
+
+```{r}
+ggplot(df, aes(x=log_gdp, y=life_exp, 
+               color=continent, 
+               size=population)) + 
+  geom_point() +
+  labs(title="Life Expectancy vs Log GDP per Capita",
+       subtitle="By Continent and Population Size",
+       x="Log GDP per Capita",
+       y="Life Expectancy (years)") -> p
+ggplotly(p)
+```
