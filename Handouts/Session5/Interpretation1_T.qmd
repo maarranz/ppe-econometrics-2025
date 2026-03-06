@@ -1,0 +1,633 @@
+---
+title: "Interpretation of Regression Parameters"
+author: "Miguel A. Arranz"
+date: today
+date-format: long
+toc: true
+format: 
+    html:
+        code-fold: true
+        code-summary: "Show the code"
+---
+
+
+
+
+```{r}
+#| warning: false
+#| message: false
+library(foreign)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(rmarkdown)
+library(kableExtra)
+library(modelsummary)
+library(plotly)
+library(jtools)
+```
+
+# The (Simple) Linear Regression Model
+
+The (Simple) Linear Regression Model assumes that there is a linear relationship between the dependent variable $Y$ and the independent variable $X$ and can be written as:
+
+$$
+Y = \beta_0 + \beta_1 X + u
+$$
+
+ where $\beta_0$ is the intercept and $\beta_1$ is the slope coefficient. The intercept represents the value of $Y$ when $X=0$, while the slope coefficient represents the expected change in $Y$ associated with a one-unit increase in $X$. The error term $u$ represents the unobserved factors that affect $Y$ in addition to $X$.
+
+The model can be divided into two parts: the explained part, represented by $\beta_0 + \beta_1 X$, and the unexplained part, represented by $u$. The explained part is the part of the variation in $Y$ that is explained by $X$ and can be used to make predictions about the value of $Y$ for different values of $X$. The unexplained part represents the variation in $Y$ that is not explained by $X$ and is typically assumed to be random.
+
+The slope coefficient $\beta_1$ is of particular interest in the linear regression model as it represents the expected change in $Y$ associated with a one-unit increase in $X$. In other words, it represents the sensitivity of $Y$ to changes in $X$. If $\beta_1$ is positive, then we say that $Y$ and $X$ are positively related, while if $\beta_1$ is negative, then we say that $Y$ and $X$ are negatively related. If $\beta_1$ is equal to zero, then there is no relationship between $Y$ and $X$.
+
+
+
+
+# Conditional Expectation (Intuition)
+
+$$
+\mathbb{E}[Y|X= x_0]
+$$
+
+The conditional expectation $\mathbb{E}[Y|X=x_0]$ is the expected value of $Y$ given that $X$ takes on the specific value $x_0$. It represents the center of the probability distribution of $Y$ conditional on the value of $X$.
+
+To illustrate this concept, consider a sample of observations of $X$ and $Y$. We can calculate the sample mean of $Y$ for a specific value of $X$, say $x_0$, by subsetting the sample to include only the observations where $X=x_0$ and computing the average of the corresponding values of $Y$.
+
+In the linear regression context, the conditional expectation represents the expected value of the dependent variable $Y$ for a given value of the independent variable $X$, holding all other variables constant (i.e., ceteris paribus).
+
+
+ What's the issue with subsetting the data to estimate the conditional expectation $\mathbb{E}[Y|X=x_0]$? The problem is that we may not have any observation for which $X=x_0$, making it impossible to estimate. One way to address this is to divide the variable $X$ into bins, so that we can condition on a range of values around $x_0$, say $\x_0 - \epsilon \leq X \leq x_0 + \epsilon$. However, this still doesn't allow us to make predictions for values of $X$ that are outside the range of the sample.
+
+# Regression as Conditional Expectation
+
+The linear regression model allows us to estimate the conditional expectation of the dependent variable $Y$ given a certain value of the independent variable $X$. This is expressed as:
+
+
+$$
+\mathbb{E}[Y|X= x_0] = \beta_0 + \beta_1 x_0
+$$
+
+ 
+However, in practice, we do not know the true **population parameters** $\beta_0$ and $\beta_1$. Instead, we **estimate** them using the data we have, resulting in the **estimated conditional expectation**:
+ 
+
+$$
+\hat{\mathbb{E}}[Y | X=x_0] = \hat{\beta}_0 + \hat{\beta}_1 x_0
+$$
+
+ This estimated conditional expectation allows us to make predictions for $Y$ given a certain value of $X$.
+
+# Fitted Values and Residuals
+
+## Fitted values
+
+Once we have estimated the parameters of the linear regression model, we can calculate the **fitted values** for each observation. The fitted value for observation $i$ is:
+
+$$
+\hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_i
+$$
+
+The fitted value represents the predicted value of the dependent variable based on the estimated parameters and the observed value of the independent variable.
+
+
+
+
+## Residuals
+
+What is the error you make  in your predictions??
+
+The **residuals** are the differences between the observed values of the dependent variable and the fitted values:
+
+$$
+\hat{u}_i = Y_i - \hat{Y}_1
+$$
+
+The residuals can be interpreted as the prediction errors of the model. They represent the amount by which the actual observations deviate from the predictions of the linear regression model.
+
+It is important to note that the residuals are not estimates of the perturbation or error term $u_i$ in the population regression equation. The error term is assumed to be unobservable and is included in the model as an unobserved random variable. The residuals are determined by the estimator of the $\beta$ parameters and represent the part of the variation in the dependent variable that is not explained by the independent variable in the model.
+
+
+
+
+
+
+# Polls Example
+
+
+
+```{r}
+library(here)
+load(here("Data","prespolls.RData"))
+```
+
+
+```{r}
+ggplot(data=prespolls, aes(x=margin.polls, y=margin.vote)) +
+geom_text( aes(label=state) ) +
+geom_abline(linetype="dashed") +
+geom_vline(xintercept=0) +
+geom_hline(yintercept = 0)+
+labs(x="Poll results", y="Actual margin")
+```
+
+---
+
+```{r}
+model1 <- lm(margin.vote ~ margin.polls, data=prespolls)
+summ(model1)
+```
+
+
+
+# Presidential Elections
+
+
+```{r}
+load(here("Data","Incumbents.RData"))
+```
+
+
+```{r inxlude=FALSE}
+IncVote <- lm(dta$Vote100~dta$RDI)
+```
+
+
+
+---
+
+```{r tidy = FALSE}
+par(mfrow=c(1, 2), mar=c(3.0, 1.2,  0.9,  1.5), oma=c(0.4, 3, 0.4,  0.3))	 	# mar(south, west, north, east)
+
+# Without fitted line
+plot(dta$Vote100~dta$RDI,bty="n",col=0,cex=5,pch=16, xlab = "",  ylab = "", main="", xaxt='n', yaxt='n', xlim=c(-1.0,6.25), ylim=c(44,68)) 
+points(dta$RDI, dta$Vote100, pch=16, col= "#3c78c3", cex=1.0)
+
+mtext("Incumbent party's", 	las = 1, side = 3, at = -1.3, line = -3.3, cex = 1.0)	
+mtext("vote percent", 		las = 1, side = 3, at = -1.3, line = -4., cex = 1.0)	
+axis(2, las =1, tick = T, cex.axis = .8, mgp = c(2,.7,0))
+
+title(xlab="Percent change in income",mgp=c(1.9,1,0), cex.lab=1.0)
+axis(1, at = seq(-1, 6, by=1), labels =  seq(-1, 6, by=1), tick = T, 
+     cex.axis = .8, mgp = c(2,.4,0))
+## Add year labels
+YearLabelList = c(1968, 1980, 1984, 1988, 2004, 2012)
+text(dta$RDI[!(dta$Year %in% YearLabelList)]+0.15, dta$Vote100[!(dta$Year %in% YearLabelList)]+0.5, dta$Year[!(dta$Year %in% YearLabelList)],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1968]+.00,dta$Vote100[dta$Year==1968]-.38,dta$Year[dta$Year==1968],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1980]+.10,dta$Vote100[dta$Year==1980]-.38,dta$Year[dta$Year==1980],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1984]+.25,dta$Vote100[dta$Year==1984]-.40,dta$Year[dta$Year==1984],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1988]+.02,dta$Vote100[dta$Year==1988]-.38,dta$Year[dta$Year==1988],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==2004]+.05,dta$Vote100[dta$Year==2004]-.38,dta$Year[dta$Year==2004],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==2012]-0.30,dta$Vote100[dta$Year==2012]+.455,dta$Year[dta$Year==2012],col="#3c78c3", cex=0.85)
+
+# With fitted line
+plot(dta$Vote100~dta$RDI,bty="n",col=0,cex=5,pch=16, xlab = "",  ylab = "", main="", xaxt='n', yaxt='n', xlim=c(-1.0,6.3), ylim=c(44,68)) 
+points(dta$RDI, dta$Vote100, pch=16, col= "#3c78c3", cex=1.0)
+
+mtext("Incumbent party's", 	las = 1, side = 3, at = -1.3, line = -3.3, cex = 1.0)	
+mtext("vote percent", 		las = 1, side = 3, at = -1.3, line = -4., cex = 1.0)	
+axis(2, las =1, tick = T, cex.axis = .8, mgp = c(2,.7,0))
+
+title(xlab="Percent change in income",mgp=c(1.9,1,0), cex.lab=1.0)
+axis(1, at = seq(-1, 6, by=1), labels =  seq(-1, 6, by=1), tick = T, 
+     cex.axis = .8, mgp = c(2,.4,0))
+## Add year labels
+YearLabelList = c(1968, 1980, 1984, 1988, 2004, 2012)
+text(dta$RDI[!(dta$Year %in% YearLabelList)]+0.15, dta$Vote100[!(dta$Year %in% YearLabelList)]+0.5, dta$Year[!(dta$Year %in% YearLabelList)],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1968]+.00,dta$Vote100[dta$Year==1968]-.38,dta$Year[dta$Year==1968],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1980]+.10,dta$Vote100[dta$Year==1980]-.38,dta$Year[dta$Year==1980],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1984]+.25,dta$Vote100[dta$Year==1984]-.40,dta$Year[dta$Year==1984],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1988]+.02,dta$Vote100[dta$Year==1988]-.38,dta$Year[dta$Year==1988],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==2004]+.05,dta$Vote100[dta$Year==2004]-.38,dta$Year[dta$Year==2004],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==2012]-0.30,dta$Vote100[dta$Year==2012]+.455,dta$Year[dta$Year==2012],col="#3c78c3", cex=0.85)
+
+# Add fitted line
+abline(IncVote, col= "#3c78c3", lwd = 2)
+
+```
+
+
+---
+
+```{r}
+summ(IncVote)
+```
+
+
+
+---
+
+```{r tidy = FALSE}
+par(mfrow=c(1, 1), mar=c(3.0, 1.2,  0.0,  1.5), oma=c(0.4, 3, 0.4,  0.3))
+# mar(south, west, north, east)
+plot(dta$Vote100~dta$RDI,bty="n",col=0,cex=5,pch=16, xlab = "",  ylab = "", main="", xaxt='n', yaxt='n', xlim=c(-1.0,6.1), ylim=c(44,68)) 
+points(dta$RDI, dta$Vote100, pch=16, col= "#3c78c3", cex=1.0)
+
+mtext("Incumbent party's", 	las = 1, side = 3, at = -1.3, line = -3.3, cex = 1.0)	
+mtext("vote percent", 		las = 1, side = 3, at = -1.3, line = -4., cex = 1.0)	
+axis(2, las =1, tick = T, cex.axis = .8, mgp = c(2,.7,0))
+
+title(xlab="Percent change in income",mgp=c(1.9,1,0), cex.lab=1.0)
+axis(1, at = seq(-1, 6, by=1), labels =  seq(-1, 6, by=1), tick = T, 
+     cex.axis = .8, mgp = c(2,.4,0))
+## Add year labels
+YearLabelList = c(1980, 1984, 1988, 2004, 2012)
+text(dta$RDI[!(dta$Year %in% YearLabelList)], dta$Vote100[!(dta$Year %in% YearLabelList)]+0.5, dta$Year[!(dta$Year %in% YearLabelList)],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1980]+.00,dta$Vote100[dta$Year==1980]-.38,dta$Year[dta$Year==1980],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1984]+.15,dta$Vote100[dta$Year==1984]-.30,dta$Year[dta$Year==1984],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1988]+.02,dta$Vote100[dta$Year==1988]-.38,dta$Year[dta$Year==1988],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==2004]+.05,dta$Vote100[dta$Year==2004]-.38,dta$Year[dta$Year==2004],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==2012]-0.23,dta$Vote100[dta$Year==2012]+.34,dta$Year[dta$Year==2012],col="#3c78c3", cex=0.85)
+
+# Add fitted line
+abline(IncVote, col= "#3c78c3", lwd = 2)
+
+# Add text with intercept indicated
+mtext(expression(paste(hat(beta)[0], " = 46.1")), side= 2, cex=0.9, at = 46.2, las = 1, line = 0.5, col = "#3c78c3")
+# Add text with slope indicated
+text(0.8, 48.8, expression(paste(hat(beta)[1], " = 2.2 (the slope)")), srt =28, cex=1., col="#3c78c3")
+	lines(c(0, 0), c(0, 46.1), col = "#3c78c3", lwd= 2, lty = 3)
+	lines(c(-2.1, 0), c(46.1, 46.1), col = "#3c78c3", lwd= 2, lty = 3)
+```
+
+
+
+```{r}
+IncVote = lm(Vote100~RDI, data = dta)
+#		summary(IncVote)
+```
+
+
+
+```{r tidy = FALSE}
+par(mfrow=c(1, 1), mar=c(3.0, 1.2,  0.0,  1.5), oma=c(0.4, 3, 0.4,  0.3))
+        # mar(south, west, north, east)
+plot(dta$Vote100~dta$RDI,bty="n",col=0,cex=5,pch=16, xlab = "",  ylab = "", main="", 
+     xaxt='n', yaxt='n', xlim=c(-1.0,6.1), ylim=c(44,63))
+points( dta$RDI[    dta$Year ==2016 | dta$Year ==1964 | dta$Year ==2000],
+        dta$Vote100[dta$Year ==2016 | dta$Year ==1964 | dta$Year ==2000], 
+	pch=16, col= "#3c78c3", cex=1.4)
+mtext("Incumbent party's", 	las = 1, side = 3, at = -1.3, line = -3.8, cex = 1.0)
+mtext("vote percent", 		las = 1, side = 3, at = -1.3, line = -4.7, cex = 1.0)	
+axis(2, las =1, tick = T, cex.axis = .8, mgp = c(2,.7,0))
+title(xlab="Percent change in income",mgp=c(1.9,1,0), cex.lab=1.0)
+axis(1, at = seq(-1, 6, by=1), labels =  seq(-1, 6, by=1), tick = T, 
+		cex.axis = .8, mgp = c(2,.4,0))
+
+# Label observations
+YearFittedList = c(2016, 2000, 1964)
+text(dta$RDI[(dta$Year %in% YearFittedList)], dta$Vote100[(dta$Year %in% YearFittedList)]+0.5, dta$Year[(dta$Year %in% YearFittedList)],col="#3c78c3", cex=0.85)
+	
+	# Add fitted line
+		
+		abline(IncVote, col= "#3c78c3", lwd = 2)
+	points(dta$RDI[dta$Year ==2016 | dta$Year ==1964 | dta$Year ==2000],
+	       IncVote$fitted[dta$Year ==2016 | dta$Year ==1964 | dta$Year ==2000], 
+	       pch=17, col= "deepskyblue", cex=1.4)
+	text(1.4, 47.5, "Fitted value for 2016", cex= 0.75, col= "deepskyblue")
+	text(-0.15, 49.3, "Residual for\n2016", cex= 0.75, col= "deepskyblue")
+	text(3.15, 55.0, "Fitted value for 2000", cex= 0.75, col= "deepskyblue")
+	text(4.85, 52.6, "Residual for 2000", cex= 0.75, col= "deepskyblue")
+	text(5.90, 57.9, "Fitted\nvalue\nfor 1964", cex= 0.75, col= "deepskyblue")
+	text(4.60, 59.9, "Residual for 1964", cex= 0.75, col= "deepskyblue")
+
+library(pBrackets) #install.packages("pBrackets")
+	brackets(0.56, 47.6, 0.56, 51.1, curvature = 0.3, h = 0.3, col= "deepskyblue") 	# 2016
+	brackets(3.95, 54.6, 3.95, 50.2, curvature = 0.3, h = 0.3, col= "deepskyblue") 	# 2000
+	brackets(5.50, 58.5, 5.5, 61.3, curvature = 0.3, h = 0.3, col= "deepskyblue") 	# 1964
+```
+
+
+
+# Interpretation of the Parameters 
+
+The linear model can be interpreted as a conditional expecttaion: it is expected value of $Y$ conditional to the value of $X$
+
+$$
+\mathbb{E}[Y| X=x_0] = \beta_0 + \beta_1 x_0
+$$
+
+The intercept term, $\beta_0$, represents the expected value of $Y$ when $X = 0$:
+
+$$
+\beta_0 = \mathbb{E}[Y | X=0]
+$$
+
+To see what happens to the expected value of $Y$ when we change the value of $X$, we can consider two different values of $X$ and subtract the resulting equations. Specifically, if we define $Y_1$ as the expected value of $Y$ when $X = x_1$, and $Y_2$ as the expected value of $Y$ when $X = x_2$, we can write:
+
+
+$$
+\begin{aligned}
+Y_1 = \mathbb{E}[Y| X=x_1] = \beta_0 + \beta_1 x_1 \\
+Y_2 = \mathbb{E}[Y| X=x_2] = \beta_0 + \beta_1 x_2 
+\end{aligned}
+$$
+Subtracting these two equations gives:
+
+$$ Y_2 - Y_1 = \beta_1 (x_2 - x_1)
+$$
+
+$$
+\Delta Y = \beta_1 \Delta X
+$$
+where $\Delta Y$ and $\Delta X$ are the changes in $Y$ and $X$, respectively.
+
+This equation shows that a change in $X$ of $\Delta X = x_2 - x_1$ results in a change in $Y$ of $\Delta Y = Y_2 - Y_1$ that is equal to $\beta_1 \Delta X$.
+
+$$\beta_1$ is known as the slope coefficient, and it represents the **expected change** in $Y$ when $X$ increases by 1 unit. Specifically, if we increase $X$ by 1 unit, we expect $Y$ to change by an average of $\beta_1$ units 
+
+# Working with logs
+
+We often work with logarithmic functions in statistics. Here are some important formulas to keep in mind:
+
+$$
+\log x = a \Leftrightarrow e^a = x \qquad \exp(a)=x
+$$
+
+This formula shows the relationship between the natural logarithm and the exponential function. It states that if $\log x = a$, then $e^a = x$, and vice versa.
+
+* The logarithm of the product of two numbers is equal to the sum of their logarithms.
+
+* The logarithm of the quotient of two numbers is equal to the difference of their logarithms.
+
+$$
+\log(x \times y) = \log x + \log y 
+$$
+$$
+\log \frac{x}{y} = \log x - \log y
+$$
+
+# Growth Rate
+
+In statistics, we often want to measure the rate at which something is growing or changing. Here are some formulas that can help us calculate growth rates:
+
+$$X_1 \quad \rightarrow \quad X_2$$
+
+This notation indicates that we are tracking the change from an initial value $X_1$ to a final value $X_2$.
+
+The growth rate $R$ is calculated as the ratio of the difference between the final and initial values to the initial value.
+
+$$
+R = \frac{X_2 - X_1}{X_1} 
+$$
+Obviouslky, this is the same as the ratio of the final value to the initial value, minus 1.
+$$
+R = \frac{X_2}{X_1} - 1
+$$
+
+We usually express growth rates as a **percentage** by multiplying them by 100:
+
+$$
+\text{growth rate (\%)} = R \times 100
+$$
+
+# Log Growth Rate
+
+
+$$X_1 \quad \rightarrow \quad X_2$$
+
+The  the log growth rate, $r$, is calculated as the difference between the natural logarithm of the final value and the natural logarithm of the initial value.
+
+
+$$
+r = \log X_2 - \log X_1
+$$
+
+We can approximate the log growth rate as the growth rate $R$ calculated in the previous section:
+
+$$
+r \approxeq R
+$$
+The log growth rate is what we call the **continuously compounded growth rate**. It represents the growth rate if the value changes continuously over time, rather than in discrete steps.
+
+We can also express the log growth rate as:
+
+$$
+r = \log \frac{X_2}{X_1}
+$$
+
+This formula calculates the log growth rate $r$ as the natural logarithm of the ratio of the final value to the initial value.
+
+Again, if we want to express it as precentage, we must multiply it by 100:
+
+
+$$
+\text{Log growth rate (\%)} = r \times 100
+$$
+
+
+# Relationship Between Growth Rates
+
+## Converting from Log Growth Rates to Growth Rates
+
+In the previous sections, we learned about two different ways to calculate growth rates: the growth rate $R$ and the log growth rate $r$. Here, we will explore the relationship between these two measures of growth.
+
+$$
+R = \frac{X_2}{X_1} - 1 $$
+Recall that the growth rate $R$ is calculated as the ratio of the difference between the final and initial values to the initial value. Tthe log growth rate $r$ is calculated as the natural logarithm of the ratio of the final value to the initial value.
+
+
+
+
+$$r = \log \frac{X_2}{X_1} 
+$$
+
+ We can use the properties of logarithms and exponents to relate $R$ and $r$. First, we can exponentiate both sides of the equation for $r$:
+
+$$
+\exp (r) = \frac{X_2}{X_1} 
+$$
+
+This equation shows that $\exp(r)$ is equal to the ratio of the final and initial values.
+
+Next, we can subtract 1 from both sides of the equation:
+
+$$
+\exp (r) -1 = \frac{X_2}{X_1} - 1
+$$
+
+This equation shows that $\exp(r) -1$ is equal to the growth rate $R$.
+
+Finally, we can rewrite this equation to solve for $R$ in terms of $r$: 
+
+$$
+R = \exp(r) - 1
+$$
+
+This equation shows that we can convert between growth rates and log growth rates using the exponential function. Specifically, we can calculate the growth rate $R$ as $\exp(r) - 1$, where $r$ is the log growth rate.
+
+## Converting from Growth Rates to Lol Growth Rates
+
+In the previous section, we saw how to convert from log growth rates to growth rates. Here, we will explore how to convert from growth rates to log growth rates.
+
+Starting with the equation for $R$ in terms of $X_1$ and $X_2$:
+
+$$
+R = \frac{X_2}{X_1} -1
+$$
+
+We can rearrange this equation to solve for $\frac{X_2}{X_1}$:
+
+
+$$
+R+1 = \frac{X_2}{X_1}
+$$
+
+Now, taking the logarithm of both sides:
+
+$$
+\log \frac{X_2}{X_1} = \log(1+R)
+$$
+
+This equation shows that the log of the ratio of the final and initial values is equal to the log growth rate $r$, which is $\log(1+R)$.
+
+Therefore, to convert from growth rates to log growth rates, we can simply calculate $r = \log(1+R)$, where $R$ is the growth rate.
+
+$$
+r = \log(1+R)
+$$
+
+
+
+# Lin-Log Model
+
+The lin-log model is a common way to model relationships between two variables $X$ and $Y$, when we expect the effect of $X$ on $Y$ to be non-linear. The model takes the form:
+
+$$
+Y = \beta_0 + \beta_1 \log X + u
+$$
+
+The expected value of $Y$ conditional on $X$ is:
+
+$$
+\mathbb{E}[Y | X=x] = \beta_0 + \beta_1 \log x
+$$
+
+This equation shows that the effect of a one-unit change in $X$ on the expected value of $Y$ is $\beta_1$ times the change in the log of $X$.
+
+We can use the lin-log model to estimate the effect of a change in $X$ on $Y$ at specific values of $X$. For example, suppose we want to estimate the effect of a change in $X$ from $x_1$ to $x_2$ on $Y$. Using the lin-log model, we have:
+
+$$
+\begin{aligned}
+\mathbb{E}[Y | X = x_1] = \beta_0 + \beta_1 \log x_1 \\
+\mathbb{E}[Y | X = x_2] = \beta_0 + \beta_1 \log x_2
+\end{aligned}
+$$
+
+Taking the difference between these two equations, we get: 
+
+$$
+Y_2 - Y_1 = \beta_1 (\log x_2 - \log x_1)
+$$
+
+ 
+
+$$
+Y_2 - Y_1 = \beta_1 r_x
+$$
+
+This equation shows that the change in $Y$ from $x_1$ to $x_2$ is equal to the log growth rate $r_x$ times the parameter $\beta_1$.
+
+Therefore, if we have estimates for $\beta_1$ and $r_x$, we can use the lin-log model to predict the change in $Y$ for any change in $X$ that we are interested in.
+
+
+
+
+
+# Log-Lin Model
+
+The Log-Lin Model is a linear regression model that involves a logarithmic transformation of the dependent variable. Specifically, the model can be written as:
+
+$$
+\log Y = \beta_0 + \beta_1 X + u
+$$
+
+where $\beta_0$ and $\beta_1$ are the intercept and slope coefficients, respectively, and $u$ is the error term.
+
+The conditional mean of $\log Y$ given $X$ is:
+
+$$
+\mathbb{E}[\log Y | X] = \beta_0 + \beta_1 X
+$$
+
+This equation shows that a one-unit increase in $X$ is associated with a $\beta_1$ increase in the expected value of $\log Y$.
+
+If we exponentiate both sides of the equation, we get:
+
+$$
+\begin{aligned}
+Y = e^{\log Y} \\
+= e^{\beta_0 + \beta_1 X + u} \\
+= e^{\beta_0} e^{\beta_1 X} e^u \\
+= \alpha e^{\beta_1 X} \varepsilon
+\end{aligned}
+$$
+where $\alpha = e^{\beta_0}$ and $\epsilon = e^u$ are the intercept and error terms in the original scale, respectively.
+
+The difference in $\log Y$ between two different values of $X$ can be expressed as:
+$$
+\log Y_2 = \beta_0 + \beta_1 x_2 \\
+\log Y_1 = \beta_0 + \beta_1 x_1 
+$$
+
+ 
+
+$$
+\begin{aligned}
+\log Y_2 - \log Y_1 = \beta_1 (x_2 - x_1) \\
+\Delta \log Y = \beta_1 \Delta X
+\end{aligned}
+$$
+
+$$
+r_y = \beta_1 \Delta X
+$$
+
+where $\Delta \log Y$ and $\Delta X$ represent the change in $\log Y$ and $X$, respectively, and $r_y$ is the log growth rate of $Y$. This equation shows that a one-unit increase in $X$ is associated with a $\beta_1$ increase in the log growth rate of $Y$.
+
+
+# Log-Log Model
+
+The log-log model assumes that the relationship between $X$ and $Y$ is not linear, but rather a power function:
+
+$$
+Y = \alpha e^{\beta_1 X} e_u
+$$
+
+$$
+\log Y = \beta_0 + \beta_1 \log X + u
+$$
+where $\beta_0 = \log alpha$.
+
+$$
+\mathbb{E}[\log Y | X] = \beta_0 + \beta_1 X
+$$Now, let's consider the log changes between two observations (we drop tyhe expectations symbol)
+
+
+$$
+\begin{aligned}
+\log Y_2 = \beta_0 + \beta_1 \log x_2 \\
+\log Y_1 = \beta_0 + \beta_1 \log x_1
+\end{aligned}
+$$
+
+ Subtracting the two equations, we get:
+
+$$
+\begin{aligned}
+\log Y_2 - \log Y_1 = \beta_1 (\log x_2 - \log x_1) \\
+\Delta \log Y = \beta_1 \Delta \log X
+\end{aligned}
+$$
+where $\log Y_2 - \log Y_1$ is the log difference between $Y_2$ and $Y_1$, and $\log x_2 - \log x_1$ is the log difference between $x_2$ and $x_1$.
+
+We can thus write the expression as 
+
+$$
+r_y = \beta_1 r_x
+$$
+
+$$
+\beta_1 = \frac{r_y}{r_x}
+$$
+and this is exactly what you defined as **elasticity** in yur Economics courses: if $X$ increases by 1%, then $Y$ increases by $\beta_1 %$.

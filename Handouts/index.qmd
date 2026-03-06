@@ -6,3 +6,5 @@ title: "Handouts"
 * [Session 1: Introduction to R](introduction-to-r.qmd)
 * [Session 2: Sample Mean](SampleMean_T.qmd)
 * [Session 4: Inference on Mean](InferenceMean.qmd)
+* [Session 5: Introduction SLR](IntroductionSLR_T.qmd)
+* [Session 5: Interpretation SLR](Interpretation1_T.qmd)

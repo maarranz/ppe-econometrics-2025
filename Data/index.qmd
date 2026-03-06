@@ -3,3 +3,7 @@ title: "Data"
 ---
 
 * [Gapminder full](gapminder_full.csv)
+* [Gapminder RData](gapminder.RData)
+* [CPS96](CPS96_15.RData)
+* [Incumbent Presidents](Incumbents.RData)
+* [Presidential Polls](prespolls.RData)

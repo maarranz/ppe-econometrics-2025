@@ -1,0 +1,321 @@
+---
+title: "Introduction to Linear Regression"
+subtitle: "Philosophy, Politics, and Economics"
+author: "Miguel A. Arranz"
+date: today
+date-format: long
+format: 
+    html:
+        code-fold: true
+        code-summary: "Show the code"
+---
+
+# Goals
+
+Welcome, undergraduate students! Today, we'll be exploring the concept of linear regression, a powerful tool that has found wide applications across various fields, including social and political sciences, economics, and engineering. Linear regression is a statistical method that helps us understand the relationship between a dependent variable and one or more independent variables.
+
+So, what is a dependent variable and an independent variable? Well, a dependent variable is the outcome variable that we want to predict, and the independent variable is the variable that we believe has an impact on the dependent variable. Linear regression helps us understand how changes in the independent variables can explain the changes in the dependent variable.
+
+Now, you may be thinking, why is linear regression important? Well, for starters, it's widely used for prediction purposes. For example, let's say you're a political analyst and want to predict the results of the upcoming elections. You could use the data from previous elections and use linear regression to predict the results of the upcoming one.
+
+But that's not all. Linear regression is also crucial for analyzing the effects of the independent variables on the dependent variable. This is especially important when we're analyzing the effects of economic policies or social programs. For example, let's say a government implemented a new policy to reduce unemployment rates. We could use linear regression to analyze the impact of the policy on the dependent variable, i.e., the unemployment rate.
+
+Now, let's dive into some real-world examples of linear regression in action. One classic example comes from the field of social sciences, where researchers have long been interested in understanding the relationship between education and income. Using linear regression, researchers have found a positive relationship between education and income, meaning that people with higher levels of education tend to have higher incomes.
+
+Another example comes from the field of political science, where researchers have used linear regression to analyze the factors that affect voter turnout. They found that factors like age, income, and education are strongly correlated with voter turnout, meaning that people who are older, wealthier, and more educated are more likely to vote.
+
+Finally, let's talk about an example from economics. In 2010, the US government implemented a tax credit for first-time homebuyers, hoping to stimulate the housing market. Researchers used linear regression to analyze the impact of the tax credit on the housing market, and found that it did, in fact, have a positive impact, increasing home sales by 2.4%.
+
+In conclusion, linear regression is a powerful tool that has found wide applications across various fields. It helps us understand the relationship between a dependent variable and one or more independent variables, and is crucial for prediction and analyzing the effects of the independent variables on the dependent variable. By using real-world examples from social and political science, we can see the importance of linear regression in action.
+
+
+# Datasets
+
+
+
+# Questions we can answer
+
+## Gapminder
+
+1.  If we increase GDP per capita by one unit, how much will life expectancy increase on average?
+This is a classic example of a regression question. The independent variable in this case is GDP per capita, and the dependent variable is life expectancy. By running a linear regression analysis, we can estimate the average increase in life expectancy for every one unit increase in GDP per capita. This information can be extremely useful for policymakers looking to improve the health outcomes of a country's citizens.
+
+2. If we increase GDP per capita by 1%, how much will life expectancy increase on average?
+This is an example of a percentage change regression question. In this case, we're interested in the impact of a percentage change in GDP per capita on life expectancy. The estimated coefficient from this regression will tell us the average increase in life expectancy for every 1% increase in GDP per capita. This question is useful for understanding the impact of economic growth on health outcomes, and can help policymakers determine the optimal level of investment in healthcare and other social programs.
+
+3. What is the difference on average in life expectancy between two continents whatsoever?
+This is an example of a regression question that involves comparing the differences between two groups. In this case, we're interested in understanding the difference in life expectancy between two continents. To answer this question, we can use a linear regression model that includes a categorical variable for the continent, with one group as the reference group. The regression output will provide us with the average difference in life expectancy between the two continents of interest, holding all other variables constant. This information can be useful for policymakers, public health officials, and researchers interested in understanding the health disparities between different regions of the world.
+
+## CPS
+
+4. What is the wage gap (the difference in salary between men and women) in 1996? And in 2015?
+This is an example of a regression question that involves analyzing changes in a variable over time. In this case, we're interested in understanding the wage gap between men and women in two different years, 1996 and 2015. To answer this question, we can use a linear regression model with year as the independent variable and wage gap as the dependent variable. The regression output will provide us with estimates for the wage gap in 1996 and 2015, as well as the change in the wage gap over time. This information can be useful for policymakers and researchers interested in understanding the factors that contribute to the wage gap and how it has changed over time.
+
+5. Has the wage gap diminished in 2015 with respect to 1996?
+It is a variation of the previous question that specifically focuses on understanding whether the wage gap has decreased over time. To answer this question, we can use a regression model that includes both year and an interaction term between year and gender (or a dummy variable for gender). The coefficient for the interaction term will provide us with an estimate of how the wage gap has changed over time, taking into account the effect of gender. If the coefficient for the interaction term is negative, it indicates that the wage gap has decreased over time, and if it is positive, it indicates that the wage gap has increased. This information can be useful for understanding progress towards gender equality in the workplace and can inform policies aimed at reducing the wage gap.
+
+6. Has the proportion of women with college degrees increased in 2016 with respect to that of 1995?
+This is an example of a regression question that involves analyzing changes in a proportion over time. In this case, we're interested in understanding whether the proportion of women with college degrees has increased from 1995 to 2016. To answer this question, we can use a linear regression model with year as the independent variable and the proportion of women with college degrees as the dependent variable. The regression output will provide us with an estimate of the change in the proportion of women with college degrees over time. If the estimate is positive, it indicates that the proportion of women with college degrees has increased over time. This information can be useful for understanding progress towards gender equality in education and can inform policies aimed at promoting women's access to higher education.
+
+7. Is the effect one extra year of education on the salary the same in 1996 as in 2015?
+This is an example of a regression question that involves analyzing whether the effect of a predictor variable on the outcome variable is the same across two different time periods. In this case, we're interested in understanding whether the effect of one extra year of education on salary is the same in 1996 as it is in 2015. To answer this question, we can use a linear regression model that includes an interaction term between year and education. The coefficient for the interaction term will provide us with an estimate of whether the effect of education on salary has changed over time. If the coefficient for the interaction term is not statistically significant, it indicates that the effect of education on salary is the same in both years. If the coefficient for the interaction term is statistically significant, it indicates that the effect of education on salary is different in 1996 and 2015. This information can be useful for understanding how the returns to education have changed over time and can inform policies aimed at promoting education as a means of increasing earnings.
+
+
+
+
+
+## Polls and Faces
+
+8. How can we predict the margin of an election based on polls results? 
+This is an example of a regression question that involves predicting the outcome of an election based on poll results. To answer this question, we can use a linear regression model that includes the margin of victory in past elections as the dependent variable and the results of current polls as the independent variables. The regression output will provide us with estimates of the coefficients for the poll results, which represent the predicted change in the margin of victory for each unit increase in the poll results. This information can be useful for political campaigns, news organizations, and other stakeholders who are interested in predicting the outcome of an election based on current polling data. However, it is important to note that there are many factors that can affect the outcome of an election, and the accuracy of the predictions will depend on the quality of the polling data and the model used for prediction.
+
+
+9. Does the economy affect the results of an election?
+ This is an example of a regression question that involves analyzing the relationship between the state of the economy and the results of an election. To answer this question, we can use a linear regression model that includes the state of the economy (e.g., GDP, unemployment rate) as the independent variable and the election outcome (e.g., margin of victory, probability of winning) as the dependent variable. The regression output will provide us with an estimate of the coefficient for the state of the economy, which represents the predicted change in the election outcome for each unit change in the state of the economy. This information can be useful for political campaigns, news organizations, and other stakeholders who are interested in understanding how the state of the economy affects election outcomes. However, it is important to note that the relationship between the state of the economy and election outcomes is complex, and other factors (such as candidate characteristics, voter sentiment, and campaign strategies) can also play a role.
+
+
+10. Will the economy affect the same on the result of the election the same if the incumbent is Republican or Democrat?
+This is an example of a regression question that involves analyzing whether the relationship between the state of the economy and the results of an election is the same for different political parties. To answer this question, we can use a linear regression model that includes an interaction term between the state of the economy and the political party of the incumbent (Republican or Democrat), in addition to other relevant independent variables. The coefficient for the interaction term will provide us with an estimate of whether the effect of the economy on the election outcome is different for Republicans and Democrats. If the coefficient for the interaction term is statistically significant, it indicates that the effect of the economy on the election outcome is different for Republicans and Democrats. This information can be useful for political campaigns, news organizations, and other stakeholders who are interested in understanding how the state of the economy affects election outcomes for different political parties. However, it is important to note that other factors (such as candidate characteristics, voter sentiment, and campaign strategies) can also play a role in election outcomes.
+
+11. How will the expenditures of a campaign influence the result of an election?
+This is an example of a regression question that involves analyzing the relationship between campaign expenditures and election outcomes. To answer this question, we can use a linear regression model that includes campaign expenditures as the independent variable and the election outcome (e.g., margin of victory, probability of winning) as the dependent variable. The regression output will provide us with an estimate of the coefficient for campaign expenditures, which represents the predicted change in the election outcome for each unit increase in campaign expenditures. This information can be useful for political campaigns, news organizations, and other stakeholders who are interested in understanding how campaign expenditures influence election outcomes. However, it is important to note that the relationship between campaign expenditures and election outcomes is complex, and other factors (such as candidate characteristics, voter sentiment, and campaign strategies) can also play a role. Additionally, the direction and magnitude of the effect of campaign expenditures on election outcomes may vary depending on the specific context and the characteristics of the election.
+
+
+12. What are the factor that affect the turnout of an election?
+Turnout refers to the proportion of eligible voters who actually participate in an election. The factors that affect turnout can be complex and multifaceted, and may include demographic factors (such as age, race, education, and income), political factors (such as party affiliation and political engagement), and contextual factors (such as the competitiveness of the race, the convenience of voting, and the presence of mobilization efforts by political campaigns or advocacy groups).
+To answer the question, we can use a regression model that includes variables that capture these various factors as independent variables and the voter turnout as the dependent variable. For example, we might include variables such as age, race, education, income, party affiliation, political engagement, competitiveness of the race, convenience of voting (e.g., early voting or mail-in voting), and mobilization efforts. The regression output can then provide us with estimates of the coefficients for each of these variables, which can help us understand the extent to which each variable affects voter turnout. This information can be useful for political campaigns, news organizations, and other stakeholders who are interested in understanding the factors that drive voter participation in elections. However, it is important to note that the relationship between these factors and voter turnout can be complex, and other factors not included in the regression model may also play a role.
+
+
+
+Turnout modeling using regression is a common technique in political science and other social sciences. There are many articles and books that cover this topic in depth. Here are a few references that you may find useful:
+
+- "A Multilevel Model of Voter Turnout" by Michael D. Martinez, published in Political Analysis (2004). This article provides an example of a regression model for predicting voter turnout that accounts for both individual-level and contextual factors.
+- "Election Turnout and the Cost of Voting" by Donald G. Saari and Katia S. Mekeš, published in Public Choice (2006). This article uses a regression model to examine the effect of the cost of voting on voter turnout.
+- "The American Voter Revisited" by Michael S. Lewis-Beck, William G. Jacoby, Helmut Norpoth, and Herbert F. Weisberg (2010). This book includes a comprehensive analysis of voter turnout using regression models.
+
+As for data availability, there are many publicly available datasets that can be used for turnout modeling. For example, the American National Election Studies (ANES) provides data on voter turnout and a wide range of individual-level and contextual variables for every U.S. presidential election since 1948. The Current Population Survey (CPS) also includes data on voter turnout and demographic variables for U.S. elections. Other countries also have publicly available data on voter turnout and related variables.
+
+
+
+
+# Example Presidential Elections Polls
+
+```{r}
+#| warning: false
+#| message: false
+library(qss)
+library(tidyverse)
+data(pres12)
+data(polls12)
+library(modelsummary)
+```
+
+The presidential election on on Nov. 6 2012. If we concentrate on 90 days before the election, it would be August 8 2012.
+
+
+```{r}
+#latepolls <- polls12 %>% filter(middate > "2012-09-01")
+#pollss <- latepolls %>% group_by(state) %>% summarize(m = mean(Obama - Rommney))
+```
+
+```{r}
+polls12 %>% filter(middate >= "2012-09-01") %>% group_by(state) %>% summarize(margin.polls = mean(Obama - Romney)) -> pollss
+summary(pollss)
+```
+
+
+```{r}
+pres12 %>% mutate(margin.vote = Obama - Romney) -> presvote
+summary(presvote)
+```
+
+```{r}
+#newpres12 <- bind_cols(presvote , pollss)
+#summary(newpres12)
+```
+
+```{r}
+not_in_pollss <- anti_join(presvote, pollss, by= "state")
+print(not_in_pollss)
+```
+
+
+```{r}
+prespolls <- left_join(pollss, presvote, by="state")
+#prespolls %>% mutate(margin.polls = m) -> prespolls
+summary(prespolls)
+```
+
+```{r}
+#save(prespolls, file="prespolls.RData")
+```
+
+
+
+```{r}
+ggplot(data=prespolls, aes(x=margin.polls, y=margin.vote)) +
+geom_text( aes(label=state) ) +
+geom_abline(linetype="dashed") +
+geom_vline(xintercept=0) +
+geom_hline(yintercept = 0)+
+labs(x="Poll results", y="Actualmargin")
+```
+
+# Example Icumbents Elections and Economy
+
+```{r}
+library(here)
+load(here("Data","Incumbents.RData"))
+```
+
+```{r}
+datasummary_skim(dta)
+```
+
+
+```{r}
+#datasummary_skim(dta, type="categorical")
+```
+
+
+```{r include=FALSE}
+IncVote = lm(dta$Vote100~dta$RDI)
+```
+
+
+## Scatterplots
+
+```{r tidy = FALSE}
+par(mfrow=c(1, 2), mar=c(3.0, 1.2,  0.9,  1.5), oma=c(0.4, 3, 0.4,  0.3))	 	# mar(south, west, north, east)
+
+# Without fitted line
+plot(dta$Vote100~dta$RDI,bty="n",col=0,cex=5,pch=16, xlab = "",  ylab = "", main="", xaxt='n', yaxt='n', xlim=c(-1.0,6.25), ylim=c(44,68)) 
+points(dta$RDI, dta$Vote100, pch=16, col= "#3c78c3", cex=1.0)
+
+mtext("Incumbent party's", 	las = 1, side = 3, at = -1.3, line = -3.3, cex = 1.0)	
+mtext("vote percent", 		las = 1, side = 3, at = -1.3, line = -4., cex = 1.0)	
+axis(2, las =1, tick = T, cex.axis = .8, mgp = c(2,.7,0))
+
+title(xlab="Percent change in income",mgp=c(1.9,1,0), cex.lab=1.0)
+axis(1, at = seq(-1, 6, by=1), labels =  seq(-1, 6, by=1), tick = T, 
+     cex.axis = .8, mgp = c(2,.4,0))
+## Add year labels
+YearLabelList = c(1968, 1980, 1984, 1988, 2004, 2012)
+text(dta$RDI[!(dta$Year %in% YearLabelList)]+0.15, dta$Vote100[!(dta$Year %in% YearLabelList)]+0.5, dta$Year[!(dta$Year %in% YearLabelList)],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1968]+.00,dta$Vote100[dta$Year==1968]-.38,dta$Year[dta$Year==1968],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1980]+.10,dta$Vote100[dta$Year==1980]-.38,dta$Year[dta$Year==1980],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1984]+.25,dta$Vote100[dta$Year==1984]-.40,dta$Year[dta$Year==1984],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1988]+.02,dta$Vote100[dta$Year==1988]-.38,dta$Year[dta$Year==1988],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==2004]+.05,dta$Vote100[dta$Year==2004]-.38,dta$Year[dta$Year==2004],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==2012]-0.30,dta$Vote100[dta$Year==2012]+.455,dta$Year[dta$Year==2012],col="#3c78c3", cex=0.85)
+
+# With fitted line
+plot(dta$Vote100~dta$RDI,bty="n",col=0,cex=5,pch=16, xlab = "",  ylab = "", main="", xaxt='n', yaxt='n', xlim=c(-1.0,6.3), ylim=c(44,68)) 
+points(dta$RDI, dta$Vote100, pch=16, col= "#3c78c3", cex=1.0)
+
+mtext("Incumbent party's", 	las = 1, side = 3, at = -1.3, line = -3.3, cex = 1.0)	
+mtext("vote percent", 		las = 1, side = 3, at = -1.3, line = -4., cex = 1.0)	
+axis(2, las =1, tick = T, cex.axis = .8, mgp = c(2,.7,0))
+
+title(xlab="Percent change in income",mgp=c(1.9,1,0), cex.lab=1.0)
+axis(1, at = seq(-1, 6, by=1), labels =  seq(-1, 6, by=1), tick = T, 
+     cex.axis = .8, mgp = c(2,.4,0))
+## Add year labels
+YearLabelList = c(1968, 1980, 1984, 1988, 2004, 2012)
+text(dta$RDI[!(dta$Year %in% YearLabelList)]+0.15, dta$Vote100[!(dta$Year %in% YearLabelList)]+0.5, dta$Year[!(dta$Year %in% YearLabelList)],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1968]+.00,dta$Vote100[dta$Year==1968]-.38,dta$Year[dta$Year==1968],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1980]+.10,dta$Vote100[dta$Year==1980]-.38,dta$Year[dta$Year==1980],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1984]+.25,dta$Vote100[dta$Year==1984]-.40,dta$Year[dta$Year==1984],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1988]+.02,dta$Vote100[dta$Year==1988]-.38,dta$Year[dta$Year==1988],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==2004]+.05,dta$Vote100[dta$Year==2004]-.38,dta$Year[dta$Year==2004],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==2012]-0.30,dta$Vote100[dta$Year==2012]+.455,dta$Year[dta$Year==2012],col="#3c78c3", cex=0.85)
+
+# Add fitted line
+abline(IncVote, col= "#3c78c3", lwd = 2)
+
+```
+
+
+
+
+
+## Create a single plot with OLS parameters identified
+
+```{r tidy = FALSE}
+par(mfrow=c(1, 1), mar=c(3.0, 1.2,  0.0,  1.5), oma=c(0.4, 3, 0.4,  0.3))
+# mar(south, west, north, east)
+plot(dta$Vote100~dta$RDI,bty="n",col=0,cex=5,pch=16, xlab = "",  ylab = "", main="", xaxt='n', yaxt='n', xlim=c(-1.0,6.1), ylim=c(44,68)) 
+points(dta$RDI, dta$Vote100, pch=16, col= "#3c78c3", cex=1.0)
+
+mtext("Incumbent party's", 	las = 1, side = 3, at = -1.3, line = -3.3, cex = 1.0)	
+mtext("vote percent", 		las = 1, side = 3, at = -1.3, line = -4., cex = 1.0)	
+axis(2, las =1, tick = T, cex.axis = .8, mgp = c(2,.7,0))
+
+title(xlab="Percent change in income",mgp=c(1.9,1,0), cex.lab=1.0)
+axis(1, at = seq(-1, 6, by=1), labels =  seq(-1, 6, by=1), tick = T, 
+     cex.axis = .8, mgp = c(2,.4,0))
+## Add year labels
+YearLabelList = c(1980, 1984, 1988, 2004, 2012)
+text(dta$RDI[!(dta$Year %in% YearLabelList)], dta$Vote100[!(dta$Year %in% YearLabelList)]+0.5, dta$Year[!(dta$Year %in% YearLabelList)],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1980]+.00,dta$Vote100[dta$Year==1980]-.38,dta$Year[dta$Year==1980],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1984]+.15,dta$Vote100[dta$Year==1984]-.30,dta$Year[dta$Year==1984],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==1988]+.02,dta$Vote100[dta$Year==1988]-.38,dta$Year[dta$Year==1988],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==2004]+.05,dta$Vote100[dta$Year==2004]-.38,dta$Year[dta$Year==2004],col="#3c78c3", cex=0.85)
+text(dta$RDI[dta$Year==2012]-0.23,dta$Vote100[dta$Year==2012]+.34,dta$Year[dta$Year==2012],col="#3c78c3", cex=0.85)
+
+# Add fitted line
+abline(IncVote, col= "#3c78c3", lwd = 2)
+
+# Add text with intercept indicated
+mtext(expression(paste(hat(beta)[0], " = 46.1")), side= 2, cex=0.9, at = 46.2, las = 1, line = 0.5, col = "#3c78c3")
+# Add text with slope indicated
+text(0.8, 48.8, expression(paste(hat(beta)[1], " = 2.2 (the slope)")), srt =28, cex=1., col="#3c78c3")
+	lines(c(0, 0), c(0, 46.1), col = "#3c78c3", lwd= 2, lty = 3)
+	lines(c(-2.1, 0), c(46.1, 46.1), col = "#3c78c3", lwd= 2, lty = 3)
+```
+
+## Create plot with fitted values and residuals
+
+```{r tidy = FALSE}
+par(mfrow=c(1, 1), mar=c(3.0, 1.2,  0.0,  1.5), oma=c(0.4, 3, 0.4,  0.3))
+        # mar(south, west, north, east)
+plot(dta$Vote100~dta$RDI,bty="n",col=0,cex=5,pch=16, xlab = "",  ylab = "", main="", 
+     xaxt='n', yaxt='n', xlim=c(-1.0,6.1), ylim=c(44,63))
+points( dta$RDI[    dta$Year ==2016 | dta$Year ==1964 | dta$Year ==2000],
+        dta$Vote100[dta$Year ==2016 | dta$Year ==1964 | dta$Year ==2000], 
+	pch=16, col= "#3c78c3", cex=1.4)
+mtext("Incumbent party's", 	las = 1, side = 3, at = -1.3, line = -3.8, cex = 1.0)
+mtext("vote percent", 		las = 1, side = 3, at = -1.3, line = -4.7, cex = 1.0)	
+axis(2, las =1, tick = T, cex.axis = .8, mgp = c(2,.7,0))
+title(xlab="Percent change in income",mgp=c(1.9,1,0), cex.lab=1.0)
+axis(1, at = seq(-1, 6, by=1), labels =  seq(-1, 6, by=1), tick = T, 
+		cex.axis = .8, mgp = c(2,.4,0))
+
+# Label observations
+YearFittedList = c(2016, 2000, 1964)
+text(dta$RDI[(dta$Year %in% YearFittedList)], dta$Vote100[(dta$Year %in% YearFittedList)]+0.5, dta$Year[(dta$Year %in% YearFittedList)],col="#3c78c3", cex=0.85)
+	
+	# Add fitted line
+		IncVote = lm(Vote100~RDI, data = dta)
+		summary(IncVote)
+		abline(IncVote, col= "#3c78c3", lwd = 2)
+	points(dta$RDI[dta$Year ==2016 | dta$Year ==1964 | dta$Year ==2000],
+	       IncVote$fitted[dta$Year ==2016 | dta$Year ==1964 | dta$Year ==2000], 
+	       pch=17, col= "deepskyblue", cex=1.4)
+	text(1.4, 47.5, "Fitted value for 2016", cex= 0.75, col= "deepskyblue")
+	text(-0.15, 49.3, "Residual for\n2016", cex= 0.75, col= "deepskyblue")
+	text(3.15, 55.0, "Fitted value for 2000", cex= 0.75, col= "deepskyblue")
+	text(4.85, 52.6, "Residual for 2000", cex= 0.75, col= "deepskyblue")
+	text(5.90, 57.9, "Fitted\nvalue\nfor 1964", cex= 0.75, col= "deepskyblue")
+	text(4.60, 59.9, "Residual for 1964", cex= 0.75, col= "deepskyblue")
+
+library(pBrackets) #install.packages("pBrackets")
+	brackets(0.56, 47.6, 0.56, 51.1, curvature = 0.3, h = 0.3, col= "deepskyblue") 	# 2016
+	brackets(3.95, 54.6, 3.95, 50.2, curvature = 0.3, h = 0.3, col= "deepskyblue") 	# 2000
+	brackets(5.50, 58.5, 5.5, 61.3, curvature = 0.3, h = 0.3, col= "deepskyblue") 	# 1964
+```
+
+
+
+
+
