@@ -8,3 +8,4 @@ title: "Handouts"
 * [Session 4: Inference on Mean](InferenceMean.qmd)
 * [Session 5: Introduction SLR](IntroductionSLR_T.qmd)
 * [Session 5: Interpretation SLR](Interpretation1_T.qmd)
+* [Session 6: Multiple Linear Regression (I)](MLR2_T.qmd)

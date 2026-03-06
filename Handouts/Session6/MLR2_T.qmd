@@ -1,0 +1,207 @@
+---
+title: "Multiple Linear Regression (I)"
+author: "Miguel A. Arranz"
+date: today
+date-format: long
+format: 
+    html:
+        code-fold: true
+        code-summary: "Show the code"
+---
+
+
+
+
+```{r}
+#| warning: false
+#| message: false
+library(foreign)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(rmarkdown)
+library(kableExtra)
+library(modelsummary)
+library(plotly)
+library(jtools)
+```
+
+# Introduction
+
+1. Partitioned Regression
+2. Dummy variables as regressors
+3. Dummy trap, multicollinearity
+
+Partitioned Regression: Partitioned regression is a technique used to model the relationship between a set of independent variables and a dependent variable in multiple linear regression. It involves breaking down the independent variables into two or more groups and fitting a separate regression model for each group. This technique can be useful when the relationship between the independent variables and the dependent variable differs between the groups.
+
+Dummy Variables as Regressors: In multiple linear regression, dummy variables are used to represent categorical variables that have two or more categories. Dummy variables take on the value of 1 or 0, depending on whether an observation falls into a particular category or not. They can be used as regressors in the regression model to account for the effect of categorical variables on the dependent variable.
+
+Dummy Trap and Multicollinearity: The dummy trap refers to the situation where one of the dummy variables in the regression model can be predicted perfectly from the other dummy variables. This results in multicollinearity, which can cause problems in the regression model. One way to avoid the dummy trap is to exclude one of the dummy variables from the regression model. This variable is referred to as the reference category.
+
+
+
+
+
+
+
+
+
+# Partitioned Regression
+
+
+The idea behind partitioned regression is to estimate the effect of one independent variable while controlling for the effects of other independent variables. In this case, the goal is to estimate the effect of $X_1$ on $Y$ while c**ontrolling for** (which means keeping constant the effects of) the effects of $X_2$ and $X_3$.
+
+Let's assume that our model is
+
+$$
+Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_3 + u
+$$
+
+
+This gives us the expected value of $Y$ given the values of $X_1$, $X_2$, and $X_3$.
+
+If I want to get the effect that $X_1$ has on $Y$, I could estimate a simple linear reegression
+I
+
+$$
+Y = \beta_0 + \beta_1 X_1 + u
+$$
+
+Unfortunately, this a WRONG way to do it. We will see later in the course that when we omit relevant variables (and in this case we have omitted $X_2$ and $X_3$), the estimator will be biased an inconsistent.
+
+What we want to estimate is the
+effect of $X_1$ on $Y$ **controlling for** the effect of the rest of the variables ($X_2$ and $X_3$)
+
+
+Lets assume that we have the following models
+
+$$
+\begin{aligned}
+\mathbb{E}[Y | X_1, X_2, X_3] = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_3 \\
+\mathbb{E}[Y | X_2, X_3] = \delta_0 + \delta_2 X_2 + \delta_3 X_3 \\
+\mathbb{E}[X_1 | X_2, X_3] = \gamma_0 + \gamma_2 X_2 + \gamma_3 X_3
+\end{aligned}
+$$
+
+Since we want to estimate the effect of $X_1$ on $Y$ after eliminating the effects of $X_2$ and $X_3$ (that is the meaning of **controlling for**),
+I am estimating the following regressions. Remember that the fitted values of the regression represent the part of the dependent variable that is explained by the regressors, and the residuals are the part of the dependent variable that is not explained by the regressors
+
+
+1. $Y = \delta_0 + \delta_2 X_2 + \delta_3 X_3 + \nu$. $\hat{\nu}$ are the part of $Y$ that is not explained by $X_2$ and $X_3$
+2. $X_1 = \gamma_0 + \gamma_2 X_2 + \gamma_3 X_3 + \eta$. $\hat{\eta}$ is the part of $X_1$ that is not explained by $X_2$ and $X_3$.
+3. Run a regression of $\hat{\eta}$ on $\hat{\nu}$
+
+The intuition behind the procedure is simple: $\hat{\nu}$ and $\hat{\eta}$ represent the part of $Y$ and $X_1$ that do not depend on $X_2$ and $X_3$. Hence, when we run the regression
+
+$$
+\hat{\nu} = \alpha_0 + \alpha_1 \hat{\eta} + \zeta
+$$
+the parameter $\alpha_1$ will be the effect of $X_1$ on $Y$ when we control for the effects of $X_2$ and $X_3$. 
+We get
+
+$$
+\hat{\alpha}_1 = \hat{\beta}_1
+$$
+
+This is a very intuitive way to interpret the coefficients of a multiple linear regression and the *ceteris paribus* condition
+
+
+# Dummy Variables as Regressors
+
+
+Suppose we have the following model:
+
+$$
+wage = \beta_0 + \beta_1 sex + \beta_2 educ + \beta_3 age + u
+$$
+
+
+Here, sex is a variable that takes on only two values, either "male" or "female." We can treat this variable as discrete, but we need to convert it to a numerical variable. To do so, we create dummy variables for each category. A dummy variable takes only two values: 0 (if something does not happen) and 1 (if something happens). Some people call them indicator variables.
+We are creating **dummy variables** for each category. A dummy variable takes ontly 2 values: 0 (if something does not happen) and 1 (if something happens). Some people will also call them **indicator variables**.
+
+We will create two dummy variables, *FEM* and MALE. The variable FEM takes the value 1 if the individual is female, and it takes the value 0 otherwise (which means the individual is male). Conversely, *MALE* takes the value 1 if the individual is male and 0 otherwise (which means the individual is female).
+
+
+$$
+FEM_i = \begin{cases}
+1 & gender=\text{Female} \\
+0 & \text{Otherwise}
+\end{cases}
+$$
+
+$$
+MALE_i = \begin{cases}
+1 & gender = \text{Male} \\
+0 & \text{Otherwise}
+\end{cases}
+$$
+
+Note that the variables take only two values, and any individual must belong to one, and only one, of the categories. Thus, we have:
+
+
+$$
+FEM_i + MALE_i = 1
+$$
+
+You might be tempted to estimate the following model
+
+
+
+$$
+wage = \beta_0 + \beta_f FEM + \beta_m MALE + \beta_2 educ + \beta_3 age + u
+$$
+
+
+However, there is HUGE problem if we try to estimate this model. Recall what a linear combination is. Suppose we have three  variables, $x$, $y$, and $z$. We have a linear combination if there exist three constants, $a$, $b$, and $c$ such that
+
+$$
+ax + by +cz = 0
+$$
+
+We have mentiioned that $FEM_i + MALE_i = 1$, and the variable accompanying $\beta_0$ is equal to 1, Thus, we have
+
+
+$$
+ FEM +  MALE - 1 = 0
+$$
+
+This is an example of what we call **multicollinearity**, which is also called the **dummy trap**. 
+
+The model would be
+
+$$
+\begin{aligned}
+wage = \beta_0 + \beta_f FEM + \beta_m MALE + \beta_2 educ + \beta_3 age + u \\
+wage = \beta_0 + \beta_f FEM + \beta_m (1 - FEM) + \beta_2 educ + \beta_3 age + u \\
+wage = \beta_0 + (\beta_f - \beta_m + 1) FEM + \beta_2 educ + \beta_3 age + u \\
+\end{aligned}
+$$
+
+So that you would get an estimator for $\beta_f - \beta_m + 1$ but there is no way to estimate both $\beta_m$ and $\beta_f$.
+ To avoid this problem, we need to exclude one of the dummy variables (or else estimate a model with intercept).
+
+For example, we can exclude MALE and use FEM as the only dummy variable. This means that males become the "base group" for the analysis, and our wage equation becomes:
+
+$$
+wage = \delta_0 + \delta_1 FEM + \delta_2 educ + \delta_3 age + \nu
+$$
+
+The expected wage of a female given a level of education and a certain age is
+
+$$
+\mathbb{E}[wage | FEM=1, \cdot] = \delta_0 + \delta_1  + \delta_2 educ + \delta_3 age
+$$
+
+
+
+The expected wage of man with the same level of education and the same age is 
+
+$$
+\mathbb{E}[wage | FEM=0, \cdot] = \delta_0 + \delta_2 educ + \delta_3 age
+$$
+
+If we have a male and a female with the same level of education and same age, the expected difference in wage will be
+
+$$
+\mathbb{E}[wage | FEM=1, \cdot] - \mathbb{E}[wage | FEM=0, \cdot] = \delta_1
+$$
