@@ -1,0 +1,251 @@
+---
+title: "MLR: Dummies, Interactions, and Quadratic Effects (I)"
+author: "Miguel A. Arranz"
+date: today
+date-format: long
+format: 
+    html:
+        code-fold: true
+        code-summary: "Show the code"
+---
+
+
+# Introduction
+
+
+
+
+
+```{r}
+#| warning: false
+#| message: false
+library(foreign)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(rmarkdown)
+library(kableExtra)
+library(modelsummary)
+library(plotly)
+library(jtools)
+```
+
+In this lecture, we will be focusing on multiple linear regression with categorical variables that have several categories, interactions, and quadratic terms. This technique is commonly used in data science and econometrics to analyze complex relationships between variables.
+
+We will begin by discussing the basic principles of multiple linear regression, including the assumptions that underlie the technique. Then we will move on to explore how to use categorical variables with several categories in a regression model. We will show how to use dummy variables to represent these categories and how to interpret the results of the regression model that includes these variables.
+
+Next, we will move on to discuss interactions between independent variables. We will show how to include interaction terms in the regression model, specifically for variables with multiple categories, and how to interpret the results. Interactions can reveal how the effect of one independent variable on the dependent variable depends on the levels of another independent variable.
+
+Finally, we will talk about quadratic effects, which allow us to capture non-linear relationships between variables. We will show how to include quadratic terms in the regression model for variables with multiple categories, and how to interpret the results. Quadratic effects can reveal how the effect of an independent variable on the dependent variable changes with the square of the variable's value.
+
+Throughout the lecture, we will use examples to illustrate each concept and provide practical guidance on how to implement these techniques in your own research. By the end of the lecture, you should have a solid understanding of how to use multiple linear regression with categorical variables that have multiple categories, interactions, and quadratic terms to build more complex models.
+
+
+
+
+
+
+
+
+# Dummy Variables with Several Categories
+
+In this section, we will use the gapminder dataset that we have previously used in this course.
+
+
+```{r}
+library(here)
+load(here("Data","gapminder.RData"))
+```
+
+
+```{r}
+df$lgnp <- log(df$gdp_cap)
+```
+
+
+$$
+lifexp = \beta_0 + \beta_1 continent + \beta_2 \log gdp + \beta_3 year + u
+$$
+
+
+The variable $continent$ must be created to make it numerical
+
+```{r}
+df$lgdp <- log(df$gdp_cap)
+```
+
+WOur goal is to estimate a multiple linear regression model that includes a variable with several categories. Specifically, we want to include the variable "continent," which has five categories: Africa, Americas, Asia, Europe, and Oceania. To do this, we must first convert the variable "continent" to numerical values. We will create a new variable called "cont2," which will take values from the following table (note that we will use alphabetical order, which is arbitrary):
+
+- Africa: 1
+- Americas: 2
+- Asia: 3
+- Europe: 4
+- Oceania: 5
+
+```{r}
+df$cont2 <- array(dim=length(df$continent))
+df$cont2[df$continent=="Africa"] <- 1
+df$cont2[df$continent=="Americas"] <- 2
+df$cont2[df$continent=="Asia"] <- 3
+df$cont2[df$continent=="Europe"] <- 4
+df$cont2[df$continent=="Oceania"] <- 5
+```
+
+Now we can estimate our model:
+
+
+$$
+lifexp = \beta_0 + \beta_1 cont2 + \beta_2 \log gdp + \beta_3 year + u
+$$
+
+
+```{r}
+model1 <- lm(life_exp ~ cont2 + lgdp + year, data=df)
+#summary(model1)
+summ(model1)
+```
+
+The parameters $\beta_2$ and $\beta_3$ are easy to interpret. However, the interpretation of $\beta_1$ is more complicated. We interpret $\beta_1$ as the expected increase in life expectancy when the variable "cont2" increases by 1 unit. For example, on average, the life expectancy of a country in the Americas will be $\beta_1$ years longer than that of a country in Africa, when GDP is the same in both countries and we measure it in the same year (remember the ceteris paribus condition). We also predict that the life expectancy of a country in Asia will be $\beta_1$ years longer than that of a country in the Americas when the rest of the variables are the same for both countries (GDP and year). Furthermore, given the rest of the variables are equal, a country in Asia will have a life expectancy that is $2\beta_1$ years higher than a country in Africa. This is also true if we compare the life expectancies of a country in Europe to a country in the Americas.
+
+However, these predicted comparisons are intuitively incorrect unless we impose many restrictions in our model (more on this later).
+
+
+## A More Flexible Model
+
+
+AA less restrictive model is needed to analyze the relationship between life expectancy and continent. In this case, we will create five dummy variables, one for each continent: Africa, Americas, Asia, Europe, and Oceania. These dummy variables take the value of 1 if the corresponding observation belongs to the continent and 0 otherwise. 
+$$
+Asia =
+\begin{cases}
+1 & continent = Asia \\
+0 & \text{Otherwise}
+\end{cases}
+$$
+
+$$
+Africa =
+\begin{cases}
+1 & continent = Africa \\
+0 & \text{Otherwise}
+\end{cases}
+$$
+
+
+$$
+Americas =
+\begin{cases}
+1 & continent = Americas \\
+0 & \text{Otherwise}
+\end{cases}
+$$
+
+
+$$
+Europe =
+\begin{cases}
+1 & continent = Europe \\
+0 & \text{Otherwise}
+\end{cases}
+$$
+
+
+
+
+$$
+Oceania =
+\begin{cases}
+1 & continent = Oceania \\
+0 & \text{Otherwise}
+\end{cases}
+$$
+
+
+Here's how we can create the dummy variables in R:
+
+```{r}
+df$Africa <- as.integer(df$continent == "Africa")
+df$Americas <- as.integer(df$continent == "Americas")
+df$Asia <- as.integer(df$continent == "Asia")
+df$Europe <- as.integer(df$continent == "Europe")
+df$Oceania <- as.integer(df$continent == "Oceania")
+```
+
+When estimating a regression model with an intercept and all the categories of continent, we need to exclude one of the categories to avoid the dummy variable trap. In this case, we will exclude Oceania and use it as the base group. The regression model becomes:
+
+$$
+\text{lifexp} = \beta_0 + \beta_1 \text{Africa} + \beta_2 \text{Americas} + \beta_3 \text{Asia} + \beta_4 \text{Europe} + \beta_5 \text{lgdp} + \beta_6 \text{year} + u
+$$
+
+```{r}
+model2 <- lm(life_exp ~ Africa + Americas + Asia + Europe + lgdp + year , data=df)
+summ(model2)
+```
+
+Let's interpret the parameters of the regression. The slopes of *lgdp* and *year* are eaasily interpreted, so let's concentarte on the rest of the parameters.
+
+
+### Interpretation of the Intercept
+
+
+
+The intercept of the regression equation represents the predicted value of the dependent variable when all of the independent variables in the model are set to zero. In this case, the intercept, denoted by $\beta_0$, represents the predicted life expectancy for a country in Oceania with a GDP of 1 (i.e., $\log(GDP) = 0$) at year 0.
+
+To obtain this interpretation, note that the model excludes Oceania as a separate continent and uses it as the base group. Therefore, when all the other continent dummies (Africa, Americas, Asia, Europe) are set to zero, it implies that the country under consideration is in Oceania.
+
+Thus, the interpretation of the intercept is as follows:
+
+
+$$
+\mathbb{E}(lifexp | Africa=Americas=Asia=Europe=0, lgdp=0, year=0) = \beta_0
+$$
+
+Here, the condition $Africa=Americas=Asia=Europe=0$ implies that Oceania=1, and the expected value of life expectancy for a country in Oceania with a GDP of 1 and year 0 is given by $\beta_0$.
+
+### Interpretation of Parameters of Dummy Variables
+
+
+To interpret the parameters of the dummy variables, we can predict the value of the dependent variable for each continent, conditional on the values of GDP and year.
+
+For a country in Africa, the value of Africa is equal to 1, and the rest of the dummy variables are equal to 0. Therefore, we can write:
+
+$$
+\mathbb{E}[lifexp | Africa=1, Americas=Asia=Europe=0, GDP, year] =  \beta_0 + \beta_2 + \beta_5 lgdp + \beta_6 year
+$$
+
+Similarly, for a country in the Americas, Asia, Europe, or Oceania, we have:
+
+$$
+\begin{aligned}
+\mathbb{E}[lifexp | Americas=1,  Africa=Asia=Europe=0, GDP, year] = \beta_0 + \beta_2 + \beta_5 lgdp + \beta_6 year \\
+\mathbb{E}[lifexp | Asia=1, Africa=Americas=Europe=0, GDP, year] = \beta_0 + \beta_3 + \beta_5 lgdp + \beta_6 year \\
+\mathbb{E}[lifexp | Europe=1, Africa=Asia=Americas=0, GDP, year] = \beta_0 + \beta_4 + \beta_5 lgdp + \beta_6 year \\
+\mathbb{E}[lifexp | Oceania=1, Europe=Africa=Asia=Americas=0, GDP, year] = \beta_0 +  \beta_5 lgdp + \beta_6 year
+\end{aligned}
+$$
+
+Note that we use the "equal to 0" notation to make it explicit that the other dummy variables are not included in the model for that observation.
+
+If we want to predict the difference in life expectancy between a country in Africa and a country in Oceania with the same GDP and in the same year, we can use the following equation:
+
+$$
+\mathbb{E}[lifexp | Africa, \cdot] - \mathbb{E}[lifexp | \text{Africa=Americas=Asia=Europ}e=0, \cdot] = \beta_1
+$$
+
+Analogously, we can use the following equations to predict the differences between other continents and Oceania:
+
+$$
+\begin{aligned}
+\mathbb{E}[lifexp | Americas, \cdot] - \mathbb{E}[lifexp | \text{Africa=Americas=Asia=Europ}e=0, \cdot] = \beta_2 \\
+\mathbb{E}[lifexp | Asia, \cdot] - \mathbb{E}[lifexp | \text{Africa=Americas=Asia=Europ}e=0, \cdot] = \beta_3 \\
+\mathbb{E}[lifexp | Europe, \cdot] - \mathbb{E}[lifexp | \text{Africa=Americas=Asia=Europ}e=0, \cdot] = \beta_4
+\end{aligned}
+$$
+
+In summary, the coefficients of the dummy variables allow us to compare the average life expectancy of each continent to Oceania, the base group, while controlling for the effects of log GDP per capita and year. Specifically, the coefficient of Africa ($\beta_1$) indicates the difference in average life expectancy between Africa and Oceania, while the coefficients of Americas, Asia, and Europe indicate the differences between those continents and Oceania.
+
+But what if we want to compare the life expectancies of two countries in different continents, neither of which is Oceania? In that case, we have two options. The first is to reformulate the model and choose a new base group (such as Europe or Asia). The second option is to use the equations above to calculate the predicted difference in life expectancy between the two countries by subtracting the coefficients of the corresponding dummy variables. For instance, to compare the life expectancies of a European country and an Asian country with the same GDP and in the same year, we would simply subtract the coefficient of Asia ($\beta_3$) from the coefficient of Europe ($\beta_4$).
+
+
+
+
+

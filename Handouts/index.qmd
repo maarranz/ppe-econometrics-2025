@@ -9,3 +9,5 @@ title: "Handouts"
 * [Session 5: Introduction SLR](IntroductionSLR_T.qmd)
 * [Session 5: Interpretation SLR](Interpretation1_T.qmd)
 * [Session 6: Multiple Linear Regression (I)](MLR2_T.qmd)
+* [Session 7: Dummies in MLR](DuminterQuad_T.qmd)
+* [Session 7: Interactions and Quadratic Effects](Interactions_T.qmd)

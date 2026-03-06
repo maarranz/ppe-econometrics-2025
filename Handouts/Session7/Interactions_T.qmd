@@ -1,0 +1,167 @@
+---
+title: "MLR: Dummies, Interactions, and Quadratic Effects (II)"
+author: "Miguel A. Arranz"
+date: today
+date-format: long
+format: 
+    html:
+        code-fold: true
+        code-summary: "Show the code"
+---
+
+
+# Introduction
+
+
+
+
+
+```{r}
+#| warning: false
+#| message: false
+library(foreign)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(rmarkdown)
+library(kableExtra)
+library(modelsummary)
+library(plotly)
+library(jtools)
+```
+
+In this lecture, we will be focusing on multiple linear regression with categorical variables that have several categories, interactions, and quadratic terms. This technique is commonly used in data science and econometrics to analyze complex relationships between variables.
+
+Next, we will move on to discuss interactions between independent variables. We will show how to include interaction terms in the regression model, specifically for variables with multiple categories, and how to interpret the results. Interactions can reveal how the effect of one independent variable on the dependent variable depends on the levels of another independent variable.
+
+Finally, we will talk about quadratic effects, which allow us to capture non-linear relationships between variables. We will show how to include quadratic terms in the regression model for variables with multiple categories, and how to interpret the results. Quadratic effects can reveal how the effect of an independent variable on the dependent variable changes with the square of the variable's value.
+
+
+# Interactions
+
+
+
+$$
+Y = \beta_0 + \beta_1 X + u
+$$
+
+$$D = \begin{cases}
+1 \\
+0
+\end{cases}
+$$
+
+$$
+Y = \beta_0 + \delta_0 D + \beta_1 X + u
+$$
+
+$$
+Y = \beta_0 + \delta_0 D + \beta_1 X + \delta_1 X \times D + u
+$$
+
+When $D=1$
+
+$$
+Y = (\beta_0 + \delta_0) + (\beta_1 + \delta_1) X + u
+$$
+
+When $D=0$
+
+$$
+Y = \beta_0 + \beta_1 X + u
+$$
+
+interecpet when $D=0$ is $\beta_0$
+
+Intercept when $D=1$ is $\beta_0 + \delta_0$
+
+Slope whhen $D=0$ is $\beta_1$
+
+Slope when $D=1$ is $\beta_1 + \delta_1$
+
+$$
+Y = \beta_0 + \beta_1 X + \delta_1 X \times D + u
+$$
+
+$$
+F = \begin{cases}
+1 & \text{ Female} \\
+0 & \text{ Otherwise}
+\end{cases}
+$$
+
+$$
+M = \begin{cases}
+1 & \text{ Married} \\
+0 & \text{ Otherwise}
+\end{cases}
+$$
+
+$$
+\begin{aligned}
+wage = \beta_0 + \delta_1 F + \gamma_1 M + \beta_1 age + \\ \delta_2 F \times age + \gamma_2 M \times age + \lambda_1 F \times M + u 
+\end{aligned}
+$$
+
+# Quadratic Effects
+
+$$
+wages = \beta_0 + \beta_1 F + \beta_2 age + \beta_3 age^2 + \beta_4 educ + \beta_5 exper + u
+$$
+
+Effect of $age$ on $wages$ would be the partial derivative
+
+$$
+\dfrac{\partial wage}{\partial age} = \beta_2 + 2 \beta_3 age
+$$
+
+
+
+$$
+\dfrac{\partial wage}{\partial age} = \beta_2 + 2 \beta_3 age = 0 \quad \Rightarrow age^\star = \dfrac{-\beta_2}{2 \beta_3}
+$$
+
+$$
+age < age^\star \Rightarrow \dfrac{\partial wage}{\partial age} > 0
+$$
+
+$$
+age > age^\star \Rightarrow \dfrac{\partial wage}{\partial age} < 0
+$$
+
+## Example
+
+$$
+\begin{aligned}
+wage = 0.2 - 0.4 F + 0.6 age - 0.2 age^2 + 0.1 educ +  \\
+0.2 exper - 0.05 F \times exper + u
+\end{aligned}
+$$
+
+1. If the rest of the variables are the same for two people, one of them amale and the other one a female, what is the expected difference in salaries between those 2 people?
+2. What is the effect of age on wages if you are 25?
+3. After which age is the effect of age on wages negative.
+4. Interpret the last coefficient of the equation.
+
+$$
+\mathbb{E}[wage | F=1, exper, \cdot] = 0.2 -0.4 - 0.05 exper + \ldots 
+$$
+
+$$
+\mathbb{E}[wage | F=0, exper, \cdot] = 0.2 
+$$
+
+Expected difference: $-0.4 - 0.05 exper$
+
+Effect of age on wages is $0.6 - 0.4 age$. If $age=25$, the effect is
+$$
+0.6 -0.4 \times 25
+$$
+
+$$
+age^\star = \dfrac{0.6}{2 \times 0.2}
+$$
+
+The effect of 1 more year of experience on wages will be smaller if you are a female, specifically it will increase your wage in 0.05 units less than if you are a male.
+
+
