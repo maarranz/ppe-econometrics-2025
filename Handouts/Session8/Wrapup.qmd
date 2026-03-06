@@ -1,0 +1,248 @@
+---
+title: "Indian Housing (II)"
+subtitle: "Philosophy, Politics, and Economics"
+author: "Miguel A. Arranz"
+date: today
+date-format: long
+toc: true
+format: 
+    html:
+        code-fold: true
+        code-summary: "Show the code"
+---
+
+
+
+# Data and Packages
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(modelsummary)
+library(jtools)
+library(haven)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(here)
+df <- read_csv(here("Data", "IndianHousingClean.csv"))
+df$beds <- df$`No. of Bedrooms`
+df$lprice <- log(df$Price)
+df$larea <- log(df$Area)
+```
+
+
+# Our First Model
+
+$$
+\log Price  = \beta_0 + \beta_1 \log Area + \beta_2 SwimmingPool + \beta_3 AC + \beta_4 beds +  u
+$${#eq-1}
+
+In @eq-1 all the coeffcients are the same for all the cities.
+
+
+```{r}
+model1 <- lm(lprice ~ larea + SwimmingPool + AC + beds , data=df)
+summ(model1)
+```
+
+
+# Different Intercepts
+
+$$
+\begin{aligned}
+\log Price & = \beta_0 + \beta_1 \log Area + \beta_2 SwimmingPool + \beta_3 AC + \beta_4 beds\\
+ & + \beta_5 Mumbai + \beta_6 Delhi + \beta_7 Chennai+ \beta_8 Hyderabad + \beta_9 Kolkata +  u
+\end{aligned}
+$${#eq-2}
+
+In @eq-2 the intercepts are allowed to be different for each city, but the rest of the parameters must be equal.
+
+
+```{r}
+model2 <- lm(lprice ~ larea + SwimmingPool + AC + beds +  City_Mumbai + City_Delhi +
+  City_Chennai + City_Hyderabad + City_Kolkata , data=df)
+summ(model2)
+```
+Let's assume that $\beta_9=0$. What is the meaning?
+
+# Different Intercepts and Slopes of log Area
+
+$$
+\begin{aligned}
+\log Price & = \beta_0 + \beta_1 \log Area + \beta_2 SwimmingPool + \beta_3 AC + \beta_4 beds\\
+ & + \beta_5 Mumbai + \beta_6 Delhi + \beta_7 Chennai+ \beta_8 Hyderabad + \beta_9 Kolkata \\
+ & + \beta_{10} \log Area*Mumbai + \beta_{11} \log Area*Delhi + \beta_{12} \log Area*Chennai \\ 
+ & + 
+ \beta_{13} \log Area* Hyderabad + \beta_{14} \log Area*Kolkata  +  u
+\end{aligned}
+$${#eq-3}
+
+
+```{r}
+model3 <- lm(lprice ~ (1 + larea)*(City_Mumbai + City_Delhi +
+  City_Chennai + City_Hyderabad + City_Kolkata) + SwimmingPool + AC + beds  , data=df)
+summ(model3)
+```
+
+# Monster Model
+
+
+$$
+\begin{aligned}
+\log Price & = \beta_0 + \beta_1 \log Area + \beta_2 SwimmingPool + \beta_3 AC + \beta_4 beds\\
+ & + \beta_5 Mumbai + \beta_6 Delhi + \beta_7 Chennai+ \beta_8 Hyderabad + \beta_9 Kolkata \\
+ & + \beta_{10} \log Area*Mumbai + \beta_{11} \log Area*Delhi + \beta_{12} \log Area*Chennai \\ 
+ & + 
+ \beta_{13} \log Area* Hyderabad + \beta_{14} \log Area*Kolkata  \\
+  & + \beta_{15} SwimmingPool*Mumbai + \beta_{16} SwimmingPool*Delhi + \beta_{17} SwimmingPool*Chennai \\ 
+ & + 
+ \beta_{18} SwimmingPool* Hyderabad + \beta_{19} SwimmingPool*Kolkata  \\
+  & + \beta_{20} AC*Mumbai + \beta_{21} AC*Delhi + \beta_{22} AC*Chennai \\ 
+ & + 
+ \beta_{23} AC* Hyderabad + \beta_{24} AC*Kolkata  \\
+ & + \beta_{25} beds*Mumbai + \beta_{26} beds*Delhi + \beta_{27} beds*Chennai \\ 
+ & + 
+ \beta_{28} beds* Hyderabad + \beta_{29} beds*Kolkata
+ +  u
+\end{aligned}
+$${#eq-4}
+
+
+
+
+```{r}
+model4 <- lm(lprice ~ (1 + larea + SwimmingPool + AC+ beds)*(City_Mumbai + City_Delhi +
+  City_Chennai + City_Hyderabad + City_Kolkata)  , data=df)
+summ(model4)
+```
+
+# Partitioned Regression
+
+Remember @eq-1
+
+$$
+\log Price  = \beta_0 + \beta_1 \log Area + \beta_2 SwimmingPool + \beta_3 AC + \beta_4 beds +  u
+$$
+
+
+```{r}
+summ(model1)
+```
+Let's calculate the estimated value of $\beta_1$ using the partitioned regression thorem
+
+1. Estimate the Model
+
+$$
+\log Price  = \delta_0 + \delta_1 SwimmingPool + \delta_2 AC + \delta_3 beds +  \nu
+$${#eq-5}
+and save the residuals to $\hat{\nu}$
+
+2. Estimate the model
+$$
+\log Area  = \gamma_0 + \gamma_1 SwimmingPool + \gamma_2 AC + \gamma_3 beds +  \eta
+$${#eq-6}
+and save the residuals to $\hat{\eta}$
+
+3. Run the regression of $\hat{nu}$ on $\hat{eta}$. The slope will be $\hat{\beta}_1$
+
+Estimate @eq-5 and save residuals
+
+```{r}
+model5 <- lm(lprice ~  SwimmingPool + AC + beds , data=df)
+summ(model5)
+nuhat <- model5$residuals
+```
+
+Estimate @eq-6 and save residuals
+
+```{r}
+model6 <- lm(larea ~  SwimmingPool + AC + beds , data=df)
+summ(model6)
+etahat <- model6$residuals
+```
+
+Run simple linear regression 
+
+```{r}
+model7 <- lm(nuhat ~  etahat)
+summ(model7)
+```
+
+# Quadratic Effects of the Area
+
+
+$$
+\log Price  = \beta_0 + \beta_1 \log Area + \beta_2 (\log Area)^2 + \beta_3 SwimmingPool + \beta_4 AC + \beta_5 beds +  u
+$${#eq-8}
+
+Estimate @eq-8
+
+
+```{r}
+model8 <- lm(lprice ~ larea + I(larea^2) + SwimmingPool + AC + beds , data=df)
+summ(model8)
+```
+
+Note that the marginal effect of $\log Area$ is initially negative. What is the turning point?
+
+$$
+\begin{aligned}
+\dfrac{\partial \log Price}{\log Area} & = \beta_1 + 2 \beta_2 \log Area \\
+x^\star & = \dfrac{- \beta_1}{2 \beta_2}
+\end{aligned}
+$$
+
+```{r}
+betas <- model8$coefficients
+names(betas)
+```
+
+```{r}
+num <- -betas["larea"]
+den <- 2*betas["I(larea^2)"]
+xstar <- num/den 
+cat("Turning Point (log Area): ", xstar, "\n")
+cat("Turning Point (Area): ", exp(xstar), "\n")
+```
+
+
+
+
+# Linear Probability Model
+
+
+
+$$
+\begin{aligned}
+SwimmingPool & = \beta_0 + \beta_1 \log Area + \beta_2 \log Price + \beta_3 AC + \beta_4 beds +  u
+\end{aligned}
+$${#eq-9}
+
+In @eq-9 we are modeling the probaility that a house has swimming pool conditional to the values of the regressors. This is what we call the **linear probability model**. 
+
+
+```{r}
+model9 <- lm(SwimmingPool ~ larea + lprice + AC + beds  , data=df)
+summ(model9)
+```
+
+
+## Second LPM Model
+
+
+$$
+\begin{aligned}
+SwimmingPool & = \beta_0 + \beta_1 \log Area + \beta_2 \log Price + \beta_3 AC + \beta_4 beds\\
+ & + \beta_5 Mumbai + \beta_6 Delhi + \beta_7 Chennai+ \beta_8 Hyderabad + \beta_9 Kolkata +  u
+\end{aligned}
+$${#eq-10}
+
+In @eq-10 the intercepts are allowed to be different for each city, but the rest of the parameters must be equal.
+
+
+```{r}
+model10 <- lm(SwimmingPool ~ larea + lprice + AC + beds +  City_Mumbai + City_Delhi +
+  City_Chennai + City_Hyderabad + City_Kolkata , data=df)
+summ(model10)
+```

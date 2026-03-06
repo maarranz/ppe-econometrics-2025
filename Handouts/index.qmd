@@ -2,12 +2,13 @@
 title: "Handouts"
 ---
 
-* [Session 1: EDA](EDA_T.qmd)
-* [Session 1: Introduction to R](introduction-to-r.qmd)
-* [Session 2: Sample Mean](SampleMean_T.qmd)
-* [Session 4: Inference on Mean](InferenceMean.qmd)
-* [Session 5: Introduction SLR](IntroductionSLR_T.qmd)
-* [Session 5: Interpretation SLR](Interpretation1_T.qmd)
-* [Session 6: Multiple Linear Regression (I)](MLR2_T.qmd)
-* [Session 7: Dummies in MLR](DuminterQuad_T.qmd)
-* [Session 7: Interactions and Quadratic Effects](Interactions_T.qmd)
+* [Session 1: EDA](Session1/EDA_T.qmd)
+* [Session 1: Introduction to R](Session2/introduction-to-r.qmd)
+* [Session 2: Sample Mean](Session2/SampleMean_T.qmd)
+* [Session 4: Inference on Mean](Session4/InferenceMean.qmd)
+* [Session 5: Introduction SLR](Session5/IntroSLR_T.qmd)
+* [Session 5: Interpretation SLR](Session5/Interpretation1_T.qmd)
+* [Session 6: Multiple Linear Regression (I)](Session6/MLR2_T.qmd)
+* [Session 7: Dummies in MLR](Session7/DuminterQuad_T.qmd)
+* [Session 7: Interactions and Quadratic Effects](Session7/Interactions_T.qmd)
+* [Session 8: Application to Indian Housing data](Session8/Wrapup.qmd)
