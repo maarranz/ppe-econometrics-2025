@@ -1,0 +1,545 @@
+---
+title: "Inference on the Mean"
+subtitle: "Philosophy, Politics, and Economics"
+author: "Miguel A. Arranz"
+date: today
+date-format: long
+format: 
+    html:
+        code-fold: true
+        code-summary: "Show the code"
+---
+
+
+# Packages
+
+```{r warning=FALSE, message=FALSE}
+library(foreign)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(ggpubr)
+library(rmarkdown)
+library(kableExtra)
+library(modelsummary)
+library(plotly)
+library(haven)
+library(ggplot2)
+library(ggthemes)
+library(extrafont)
+```
+
+
+# Review
+
+## Central Limit Theorem
+
+$$
+\bar{X} \overset{a}{\sim} N \left(\mu, \frac{\sigma^2}{n} \right)
+$$
+
+Transform
+
+$$
+\frac{\bar{X} - \mu}{\sigma/\sqrt{n}} \sim N(0,1)
+$$
+
+$N(0,1)$ is the **standard Normal distribution**
+
+Unknow $\sigma$
+
+
+$$
+\frac{\bar{X} - \mu}{s/\sqrt{n}} \sim t_\nu
+$$
+
+This what we call the t-stat
+
+$$
+\frac{\hat{\theta} - \theta}{se(\hat{\theta})} \sim t_\nu
+$$
+
+However, if $X$ does not follow Normal distribution, it is better to go for the **asymptotic distribution**
+
+
+$$
+\frac{\bar{X} - \mu}{s/\sqrt{n}} \sim N(0,1)
+$$
+
+and then
+
+
+$$
+\frac{\bar{X} - \mu}{s/\sqrt{n}} \sim N(0,1)
+$$
+
+
+## Graphical Analysis
+
+$$
+\mu = 1000, \; \sigma=250
+$$
+
+$$
+Y = \bar{X}
+$$
+
+$$
+\Pr( 500 \leq Y \leq 1000) = \int_{y=500}^{y=1000} \phi(y) dy = F_Y(1000) - F_Y(500)
+$$
+
+$$\Pr(Y \leq 500) = F_Y(500)$$
+
+$$\Pr(Y > 500) = 1 - \Pr(Y \leq 500) = 1 - F_Y(500)$$
+
+
+```{r}
+#| warning: false
+mean <- 1000
+std <- 250
+x <- seq(mean - 3 * std, mean + 3 * std, length.out = 1000)
+y <- dnorm(x, mean, std)
+
+data <- data.frame(x = x, y = y)
+
+px <- seq(0, 500, by = 10)
+py <- dnorm(px, mean, std)
+
+fill_data <- data.frame(x = px, y = py)
+
+ggplot() +
+  geom_line(data = data, aes(x = x, y = y), color = "blue", size = 1.2) +
+  geom_ribbon(data = fill_data, aes(x = x, ymin = 0, ymax = y), fill = "red", alpha = 0.5) +
+  labs(title = "Normal Distribution", x = "Value", y = "Density")
+
+```
+
+
+
+
+```{r}
+#| warning: false
+library(ggplot2)
+
+mean <- 1000
+std <- 250
+x <- seq(mean - 3 * std, mean + 3 * std, length.out = 1000)
+y <- dnorm(x, mean, std)
+
+data <- data.frame(x = x, y = y)
+
+px <- seq(1500, 2000, by = 10)
+py <- dnorm(px, mean, std)
+
+fill_data <- data.frame(x = px, y = py)
+
+ggplot() +
+  geom_line(data = data, aes(x = x, y = y), color = "blue", size = 1.2) +
+  geom_ribbon(data = fill_data, aes(x = x, ymin = 0, ymax = y), fill = "red", alpha = 0.5) +
+  labs(title = "Normal Distribution", x = "Value", y = "Density")
+
+```
+
+
+```{r}
+#| warning: false
+
+mean <- 1000
+std <- 250
+x <- seq(mean - 3 * std, mean + 3 * std, length.out = 1000)
+y <- dnorm(x, mean, std)
+
+data <- data.frame(x = x, y = y)
+
+px1 <- seq(0, 500, by = 10)
+py1 <- dnorm(px1, mean, std)
+
+fill_data1 <- data.frame(x = px1, y = py1)
+
+px2 <- seq(1500, 2000, by = 10)
+py2 <- dnorm(px2, mean, std)
+
+fill_data2 <- data.frame(x = px2, y = py2)
+
+ggplot() +
+  geom_line(data = data, aes(x = x, y = y), color = "blue", size = 1.2) +
+  geom_ribbon(data = fill_data1, aes(x = x, ymin = 0, ymax = y), fill = "red", alpha = 0.5) +
+  geom_ribbon(data = fill_data2, aes(x = x, ymin = 0, ymax = y), fill = "red", alpha = 0.5) +
+  labs(title = "Normal Distribution", x = "Value", y = "Density")
+
+
+
+```
+
+# Student's t and Normal
+
+```{r}
+#| warning: false
+
+
+x <- seq(-4, 4, length=100)
+hx <- dnorm(x)
+labels <- c("t with df = 5", "standard normal")
+
+df <- data.frame(x = rep(x, 2), 
+                 density = c(hx, dt(x, 4)), 
+                 distribution = rep(labels, each = length(x)))
+
+ggplot(df, aes(x = x, y = density, color = distribution, linetype = distribution)) +
+  geom_line(size = 1) +
+  labs(x = "x value", y = "Density", title = "t(4) and standard normal") +
+  scale_linetype_manual(values = c(2, 1)) +
+  scale_color_manual(values = c("red", "blue")) +
+  theme_minimal() +
+  theme(legend.position = "top", 
+        legend.title = element_text(face = "bold"),
+        legend.text = element_text(size = 10))
+
+
+```
+
+```{r}
+#| warning: false
+
+
+x <- seq(-4, 4, length=100)
+hx <- dnorm(x)
+labels <- c("t with df = 30", "standard normal")
+
+df <- data.frame(x = rep(x, 2), 
+                 density = c(hx, dt(x, 30)), 
+                 distribution = rep(labels, each = length(x)))
+
+ggplot(df, aes(x = x, y = density, color = distribution, linetype = distribution)) +
+  geom_line(size = 1) +
+  labs(x = "x value", y = "Density", title = "t(30) and standard normal") +
+  scale_linetype_manual(values = c(2, 1)) +
+  scale_color_manual(values = c("red", "blue")) +
+  theme_minimal() +
+  theme(legend.position = "top", 
+        legend.title = element_text(face = "bold"),
+        legend.text = element_text(size = 10))
+
+```
+
+
+
+# Hypothesis Testing
+
+$$
+H_0 \colon \: \mu=\mu_0 \quad vs. \quad H_1 \colon \; \mu \neq \mu_0
+$$
+
+
+$$
+H_0 \colon \: \mu=\mu_0 \quad vs. \quad H_1 \colon \; \mu > \mu_0
+$$
+
+
+$$
+H_0 \colon \: \mu=\mu_0 \quad vs. \quad H_1 \colon \; \mu < \mu_0
+$$
+
+
+## Case 1
+
+
+$$
+H_0 \colon \: \mu=\mu_0 \quad vs. \quad H_1 \colon \; \mu \neq \mu_0
+$$
+
+Assume that $\mu_0=1000$. 
+
+Your estimator is $\bar{x}=300$. The estimated value for the the variance of $\bar{x}$ is 250
+
+
+```{r}
+#| warning: false
+
+mean <- 1000
+std <- 250
+x <- seq(mean - 3 * std, mean + 3 * std, length.out = 1000)
+y <- dnorm(x, mean, std)
+
+data <- data.frame(x = x, y = y)
+
+px1 <- seq(0, 300, by = 10)
+py1 <- dnorm(px1, mean, std)
+
+fill_data1 <- data.frame(x = px1, y = py1)
+
+px2 <- seq(1700, 2000, by = 10)
+py2 <- dnorm(px2, mean, std)
+
+fill_data2 <- data.frame(x = px2, y = py2)
+
+ggplot() +
+  geom_line(data = data, aes(x = x, y = y), color = "blue", size = 1.2) +
+  geom_ribbon(data = fill_data1, aes(x = x, ymin = 0, ymax = y), fill = "red", alpha = 0.5) +
+  geom_ribbon(data = fill_data2, aes(x = x, ymin = 0, ymax = y), fill = "red", alpha = 0.5) +
+  labs(title = "Normal Distribution", x = "Value", y = "Density")
+
+
+
+```
+
+
+Your estimator is $\bar{x}=1200$. The estimated value for the the variance of $\bar{x}$ is 250
+
+
+```{r}
+#| warning: false
+
+mean <- 1000
+std <- 250
+x <- seq(mean - 3 * std, mean + 3 * std, length.out = 1000)
+y <- dnorm(x, mean, std)
+
+data <- data.frame(x = x, y = y)
+
+px1 <- seq(0, 800, by = 10)
+py1 <- dnorm(px1, mean, std)
+
+fill_data1 <- data.frame(x = px1, y = py1)
+
+px2 <- seq(1200, 2000, by = 10)
+py2 <- dnorm(px2, mean, std)
+
+fill_data2 <- data.frame(x = px2, y = py2)
+
+ggplot() +
+  geom_line(data = data, aes(x = x, y = y), color = "blue", size = 1.2) +
+  geom_ribbon(data = fill_data1, aes(x = x, ymin = 0, ymax = y), fill = "red", alpha = 0.5) +
+  geom_ribbon(data = fill_data2, aes(x = x, ymin = 0, ymax = y), fill = "red", alpha = 0.5) +
+  labs(title = "Normal Distribution", x = "Value", y = "Density")
+
+
+
+```
+
+## Case 2
+
+
+$$
+H_0 \colon \: \mu=\mu_0 \quad vs. \quad H_1 \colon \; \mu > \mu_0
+$$
+
+
+
+
+Your estimator is $\bar{x}=1200$. The estimated value for the the variance of $\bar{x}$ is 250
+
+
+
+```{r}
+#| warning: false
+library(ggplot2)
+
+mean <- 1000
+std <- 250
+x <- seq(mean - 3 * std, mean + 3 * std, length.out = 1000)
+y <- dnorm(x, mean, std)
+
+data <- data.frame(x = x, y = y)
+
+px <- seq(1200, 2000, by = 10)
+py <- dnorm(px, mean, std)
+
+fill_data <- data.frame(x = px, y = py)
+
+ggplot() +
+  geom_line(data = data, aes(x = x, y = y), color = "blue", size = 1.2) +
+  geom_ribbon(data = fill_data, aes(x = x, ymin = 0, ymax = y), fill = "red", alpha = 0.5) +
+  labs(title = "Normal Distribution", x = "Value", y = "Density")
+
+```
+
+What if $\bar{x}=800$?
+
+
+```{r}
+#| warning: false
+library(ggplot2)
+
+mean <- 1000
+std <- 250
+x <- seq(mean - 3 * std, mean + 3 * std, length.out = 1000)
+y <- dnorm(x, mean, std)
+
+data <- data.frame(x = x, y = y)
+
+px <- seq(800, 2000, by = 10)
+py <- dnorm(px, mean, std)
+
+fill_data <- data.frame(x = px, y = py)
+
+ggplot() +
+  geom_line(data = data, aes(x = x, y = y), color = "blue", size = 1.2) +
+  geom_ribbon(data = fill_data, aes(x = x, ymin = 0, ymax = y), fill = "red", alpha = 0.5) +
+  labs(title = "Normal Distribution", x = "Value", y = "Density")
+
+```
+
+
+
+What if $\bar{x} = 1500$?
+
+```{r}
+#| warning: false
+library(ggplot2)
+
+mean <- 1000
+std <- 250
+x <- seq(mean - 3 * std, mean + 3 * std, length.out = 1000)
+y <- dnorm(x, mean, std)
+
+data <- data.frame(x = x, y = y)
+
+px <- seq(1500, 2000, by = 10)
+py <- dnorm(px, mean, std)
+
+fill_data <- data.frame(x = px, y = py)
+
+ggplot() +
+  geom_line(data = data, aes(x = x, y = y), color = "blue", size = 1.2) +
+  geom_ribbon(data = fill_data, aes(x = x, ymin = 0, ymax = y), fill = "red", alpha = 0.5) +
+  labs(title = "Normal Distribution", x = "Value", y = "Density")
+
+```
+
+
+## Case 3
+
+
+$$
+H_0 \colon \: \mu=\mu_0 \quad vs. \quad H_1 \colon \; \mu < \mu_0
+$$
+
+
+$\bar{x}$ = 500
+
+```{r}
+#| warning: false
+mean <- 1000
+std <- 250
+x <- seq(mean - 3 * std, mean + 3 * std, length.out = 1000)
+y <- dnorm(x, mean, std)
+
+data <- data.frame(x = x, y = y)
+
+px <- seq(0, 500, by = 10)
+py <- dnorm(px, mean, std)
+
+fill_data <- data.frame(x = px, y = py)
+
+ggplot() +
+  geom_line(data = data, aes(x = x, y = y), color = "blue", size = 1.2) +
+  geom_ribbon(data = fill_data, aes(x = x, ymin = 0, ymax = y), fill = "red", alpha = 0.5) +
+  labs(title = "Normal Distribution", x = "Value", y = "Density")
+
+```
+
+$\bar{x} = 300$
+
+
+```{r}
+#| warning: false
+mean <- 1000
+std <- 250
+x <- seq(mean - 3 * std, mean + 3 * std, length.out = 1000)
+y <- dnorm(x, mean, std)
+
+data <- data.frame(x = x, y = y)
+
+px <- seq(0, 300, by = 10)
+py <- dnorm(px, mean, std)
+
+fill_data <- data.frame(x = px, y = py)
+
+ggplot() +
+  geom_line(data = data, aes(x = x, y = y), color = "blue", size = 1.2) +
+  geom_ribbon(data = fill_data, aes(x = x, ymin = 0, ymax = y), fill = "red", alpha = 0.5) +
+  labs(title = "Normal Distribution", x = "Value", y = "Density")
+
+```
+
+$bar{x} = 1300$ 
+
+
+```{r}
+#| warning: false
+mean <- 1000
+std <- 250
+x <- seq(mean - 3 * std, mean + 3 * std, length.out = 1000)
+y <- dnorm(x, mean, std)
+
+data <- data.frame(x = x, y = y)
+
+px <- seq(0, 1300, by = 10)
+py <- dnorm(px, mean, std)
+
+fill_data <- data.frame(x = px, y = py)
+
+ggplot() +
+  geom_line(data = data, aes(x = x, y = y), color = "blue", size = 1.2) +
+  geom_ribbon(data = fill_data, aes(x = x, ymin = 0, ymax = y), fill = "red", alpha = 0.5) +
+  labs(title = "Normal Distribution", x = "Value", y = "Density")
+
+```
+
+## p-value
+
+The p-value is the probability of observing a test statistic as extreme as, or more extreme than, the one obtained from the sample, assuming that the null hypothesis ($H_0$) is true.
+
+In simpler terms, the p-value measures the strength of evidence against $H_0$
+
+​
+A small p-value (typically < 0.05) suggests that the observed data is unlikely under $H_0$, leading to reject $H_0$
+​
+ 
+A large p-value (typically > 0.05) indicates that the observed data is consistent with $H_0$, so we do not reject it.
+
+
+
+# Confidence Interval
+
+
+$$
+\frac{\bar{X} - \mu}{s/\sqrt{n}} \sim N(0,1)
+$$
+
+$$
+\begin{aligned}
+\Pr \left( \left|  \frac{\bar{X} - \mu}{s/\sqrt{n}} \right| \leq z_{\alpha/2} \right) = 1 - \alpha\\
+\Pr \left( \left|  \frac{\bar{X} - \mu}{s/\sqrt{n}} \right| \leq z_{\alpha/2} \right) =
+\Pr \left( -z_{\alpha/2} \leq \frac{\bar{X} - \mu}{s/\sqrt{n}}  \leq z_{\alpha/2} \right) 
+\end{aligned}
+$$
+
+$$
+-z_{\alpha/2} \leq \frac{\bar{x} - \mu}{s/\sqrt{n}}  \leq z_{\alpha/2} \quad \rightarrow 
+-z_{\alpha/2} \times \frac{s}{\sqrt{n}} \leq \bar{x} - \mu \leq z_{\alpha/2} \times \frac{s}{\sqrt{n}}
+$$
+
+$$
+-\bar{x} -z_{\alpha/2} \times \frac{s}{\sqrt{n}} \leq - \mu \leq -\bar{x} + z_{\alpha/2} \times \frac{s}{\sqrt{n}}
+$$
+
+$$
+\bar{x} -z_{\alpha/2} \times \frac{s}{\sqrt{n}} \leq  \mu \leq \bar{x} + z_{\alpha/2} \times \frac{s}{\sqrt{n}}
+$$
+
+Confidence Interval
+
+$$
+\left ({\bar{x}} \pm z_{/\alpha/2} \times \frac{s}{\sqrt{n}} \right)
+$$
+
+In general
+$$
+\alpha=0.05 \qquad z_{\alpha/2} = 1.96
+$$
+
+$$
+\hat{\theta} \pm 2 \times se(\hat{\theta})
+$$
